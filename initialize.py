@@ -51,7 +51,7 @@ class AuthenticatedUser:
                 lbl_state.configure(text="Too many tries")
 
         auth_win = tkinter.Tk()
-        auth_win.tk.call("source", "azure.tcl")
+        auth_win.tk.call("source", "resources/azure.tcl")
         auth_win.tk.call("set_theme", "dark")
         auth_win.title('SID-IP robot')
         auth_win.geometry("300x200")

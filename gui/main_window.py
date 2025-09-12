@@ -20,7 +20,7 @@ class UserEnvironment:
         self.icon_path = Path(__file__).resolve().parent.parent / 'resources' / 'icon.ico' #Ruta absoluta al archivo icon.ico
 
 
-        self.theme_path = Path(__file__).resolve().parent.parent  / 'azure.tcl' #Ruta absoluta al archivo azure.tcl
+        self.theme_path = Path(__file__).resolve().parent.parent  / 'resources' / 'azure.tcl' #Ruta absoluta al archivo azure.tcl
         """
         Crea la ventana GUI donde se ejecutara el programa
         """
