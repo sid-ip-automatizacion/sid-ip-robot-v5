@@ -1,5 +1,6 @@
 
 import requests
+from requests.auth import HTTPBasicAuth
 from pprint import pprint
 from bs4 import BeautifulSoup
 import html, re
@@ -14,6 +15,10 @@ class SCCD:
         self.user_sccd = user_sccd
         self.pass_sccd = pass_sccd
         self.url_sccd = 'https://servicedesk.cwc.com/maximo/' 
+        #The following two lines just validate the credentials
+        self.auth = HTTPBasicAuth(self.user_sccd, self.pass_sccd) # Basic Authentication
+        self.validate_credentials = requests.get(self.url_sccd, auth=self.auth) # Validate credentials (200=OK, 401=Unauthorized)
+
         self.session = requests.Session()
         self.myheaders = {
             'x-method-override': 'PATCH',
@@ -149,9 +154,8 @@ def main():
     owner = " "  # user
     user_sccd = " "  # SCCD user
     pass_sccd = " "  # SCCD password
-    url_sccd = 'https://servicedesk.cwc.com/maximo/'
 
-    sccd_con = SCCD(owner, user_sccd, pass_sccd, url_sccd)
+    sccd_con = SCCD(owner, user_sccd, pass_sccd)
     data=sccd_con.get_work_orders()
     pprint(data)
 

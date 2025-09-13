@@ -1,13 +1,17 @@
+from pathlib import Path
 import tkinter
 from tkinter.filedialog import asksaveasfilename, askopenfilename
 
 import pandas as pd
 
+theme_path = Path(__file__).resolve().parent.parent.parent / 'resources' / 'azure.tcl' #Ruta absoluta al archivo azure.tcl
 
 def error_window(text):
         #ventana de error, recibe un texto y lo muestra en una ventana de error
         print("ERROR: {}".format(text))
         error_win = tkinter.Tk()
+        error_win.tk.call("source", theme_path)
+        error_win.tk.call("set_theme", "dark")
         error_text = tkinter.Label(error_win, text=text)
         ok_button = tkinter.Button(error_win, text='OK', width=5, height=2, command=error_win.destroy)
         error_text.pack()

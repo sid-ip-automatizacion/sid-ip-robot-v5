@@ -4,7 +4,10 @@ from pathlib import Path
 import tkinter    
 from tkinter import ttk
 
-from .components import EnvHandler
+from core.sccd_connector import SCCD
+
+from .components.utils import error_window
+from .components import EnvHandler 
 
 from . import ap_management_ui as ap_mgmt
 from . import sw_meraki_atp_ui as sw_m_atp
@@ -99,16 +102,31 @@ class UserEnvironment:
         """
         Abre la aplicación de sccd_manager para actualizar estados y logs
         """
-        self.btn_sccd_m.config(state="disabled")  # Deshabilita el boton mientras se ejecuta la función
+        
         # Ejecuta la funcion de manejo de estados en el ambiente del usuario
         # retorna una referencia a la ventana hija
-        self.child_ref_sccd_m = True
-        run_sccd_manager(self.env.get_owner_sccd(), 
-                        self.env.get_user_sccd(), 
-                        self.env.get_pass_sccd(), 
-                        on_close=self._child_closed_sccd_m)  # Pasa el callback de cierre de la ventana hija
-
+        sccd = SCCD(self.env.get_owner_sccd(), self.env.get_user_sccd(), self.env.get_pass_sccd())
         
+        if self.env.get_owner_sccd() == '' or self.env.get_user_sccd() == '' or self.env.get_pass_sccd() == '':
+            print("SCCD credentials are not set")
+            self.env.set_sccd_credentials()
+            self.btn_sccd_m.config(state="normal")  # Habilita el boton si no se pudo abrir la ventana hija
+        elif sccd.validate_credentials.status_code == 401:
+            print("SCCD credentials are not valid")
+            self.env.set_sccd_credentials()
+            self.btn_sccd_m.config(state="normal")  # Habilita el boton si no se pudo abrir la ventana hija
+        elif sccd.validate_credentials.status_code == 200:
+            self.btn_sccd_m.config(state="disabled")  # Deshabilita el boton mientras se ejecuta la función
+            self.child_ref_sccd_m = True
+            run_sccd_manager(self.env.get_owner_sccd(), 
+                            self.env.get_user_sccd(), 
+                            self.env.get_pass_sccd(), 
+                            on_close=self._child_closed_sccd_m)  # Pasa el callback de cierre de la ventana hija
+        else:
+            error_window("Error connecting to SCCD, please try again later.")
+            print("Error connecting to SCCD, status code:", sccd.validate_credentials.status_code) 
+            self.btn_sccd_m.config(state="normal")  # Habilita el boton si no se pudo abrir la ventana hija
+
 
     def run_aps(self):
         """
@@ -185,7 +203,7 @@ class UserEnvironment:
         Muestra la ventana Acerca de"
         """
         about_win = tkinter.Toplevel()
-        about_text = tkinter.Label(about_win, text='version: 5.0'
+        about_text = tkinter.Label(about_win, text='version: 5.0.1'
                                                    '\nSID-IP release'
                                                   '\n\nDesarrollado por SID-IP Team, Liberty Networks'
                                                   '\nEquipo de desarrollo:'

@@ -147,6 +147,10 @@ class Table(ttk.Frame):
         """Update the 'last_update' column in the table/row_store."""
         self.set_cell(wo_id, "last_update", last_update)
 
+    def set_project_info(self, wo_id: str, project_info: str):
+        """Update the 'project_info' column in the table/row_store."""
+        self.set_cell(wo_id, "project_info", project_info)
+
     def has_row(self, wo_id: str) -> bool:
         return bool(self.tree.exists(wo_id))
 

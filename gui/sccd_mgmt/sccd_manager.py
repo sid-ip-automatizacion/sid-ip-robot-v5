@@ -289,10 +289,14 @@ class AppStates(tk.Toplevel):
                     if not wo_id or not self.table.has_row(wo_id):
                         continue
 
-                    # Update last_update column visually
-                    self.table.set_last_update(wo_id, note)
                     # Async server update
                     self.async_update_log_in_server(wo_id, title, note)
+                    # Update last_update column visually
+                    self.table.set_last_update(wo_id, note)
+                    # If P00. is in title, update project_info column too
+                    if 'P00.' in title:
+                        self.table.set_project_info(wo_id, note)
+                        
                 if 'N20.' in title or 'N21.' in title:
                     generate_MW_email(note)
                 popup.destroy()
