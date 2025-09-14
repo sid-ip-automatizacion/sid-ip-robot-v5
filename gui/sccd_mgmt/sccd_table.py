@@ -151,6 +151,9 @@ class Table(ttk.Frame):
     def set_project_info(self, wo_id: str, project_info: str):
         """Update the 'project_info' column in the table/row_store."""
         self.set_cell(wo_id, "project_info", project_info)
+    def set_pm(self, wo_id: str, pm_info: str):
+        """Update the 'pm' column in the table/row_store."""
+        self.set_cell(wo_id, "pm", pm_info)
 
     def has_row(self, wo_id: str) -> bool:
         return bool(self.tree.exists(wo_id))
@@ -177,10 +180,7 @@ class Table(ttk.Frame):
         cell_value = (row.get(column) if row and column in row else display_values[col_index])
 
         # Column-specific behaviors
-        if column == "wo_id":
-            self._copy_to_clipboard(str(cell_value))
-            return
-        if column == "description":
+        if column == "wo_id" or column == "description" or  column == "pm":
             self._copy_to_clipboard(str(cell_value))
             return
         if column == "last_update" or column == "project_info":

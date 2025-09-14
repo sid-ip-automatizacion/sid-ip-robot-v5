@@ -63,9 +63,12 @@ class SCCD:
                                       })
             wo_dic_normalized['cids'] = cids_list
             wo_dic_normalized['project_info'] = "No information"
+            wo_dic_normalized['pm'] = "No information"
             for log in wo_dic.get('worklog', []):
                 if log.get('description').startswith('P00'):
                     wo_dic_normalized['project_info'] = SCCD.clean_data(log.get('description_longdescription'))
+                if log.get('description').startswith('N27'):
+                    wo_dic_normalized['pm'] = SCCD.clean_data(log.get('description_longdescription'))
             wo_dic_normalized['last_update'] = "No information"
             if wo_dic.get('worklog'):
                 latest_log = max(wo_dic.get('worklog', []), key=lambda x: datetime.fromisoformat(x['createdate']))

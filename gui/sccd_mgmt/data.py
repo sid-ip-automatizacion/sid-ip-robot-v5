@@ -34,8 +34,8 @@ log_options = ('---',
     'N24. LICENSES ADDED',
     'N25. CUSTOMER TRAINING',
     'N26. TROUBLESHOOTING/FIXES/ADJUSTMENTS',
-    'N27. NOTE',
-
+    'N27. PROJECT MANAGER',
+    'N28. NOTA/COMENTARIO'
     )
 
 log_options_spanish = ('---',
@@ -74,7 +74,8 @@ log_options_spanish = ('---',
     'N24. SE AÑADEN LICENCIAS',
     'N25. CAPACITACION AL CLIENTE',
     'N26. SOLUCION DE PROBLEMAS/REPARACIONES/AJUSTES',
-    'N27. NOTA/COMENTARIO'
+    'N27. PROJECT MANAGER',
+    'N28. NOTA/COMENTARIO'
     )
 
 default_mw_text_1="""rfc: <RFC>

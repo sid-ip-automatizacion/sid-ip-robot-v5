@@ -33,8 +33,8 @@ class AppStates(tk.Toplevel):
         self.icon_path = Path(__file__).resolve().parent.parent.parent / 'resources' / 'icon.ico' #Ruta absoluta al archivo icon.ico
         self.iconbitmap(self.icon_path)
 
-        self.columns = ["wo_id", "description", "state", "last_update", "cid_count", "project_info", "time_min"]
-        self.headings = ["WO ID ▲/▼", "Description ▲/▼", "Estate ▲/▼", "Last Update ▲/▼", "CID # ▲/▼", "Project Info ▲/▼", "Time (min) ▲/▼"]
+        self.columns = ["wo_id", "description", "state", "last_update", "cid_count", "project_info", "pm", "time_min"]
+        self.headings = ["WO ID ▲/▼", "Description ▲/▼", "Estate ▲/▼", "Last Update ▲/▼", "CID # ▲/▼", "Project Info ▲/▼", "PM ▲/▼", "Time (min) ▲/▼"]
 
         self.table = Table(self, columns=self.columns, headings=self.headings, height=14)
         self.table.pack(fill="both", expand=True, padx=10, pady=10)
@@ -296,6 +296,9 @@ class AppStates(tk.Toplevel):
                     # If P00. is in title, update project_info column too
                     if 'P00.' in title:
                         self.table.set_project_info(wo_id, note)
+                    # If N27. is in title, update pm column too
+                    if 'N27.' in title:
+                        self.table.set_pm(wo_id, note)
                         
                 if 'N20.' in title or 'N21.' in title:
                     generate_MW_email(note)
