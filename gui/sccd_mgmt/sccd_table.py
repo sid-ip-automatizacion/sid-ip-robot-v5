@@ -202,10 +202,10 @@ class Table(ttk.Frame):
         for index, (_, iid) in enumerate(data):
             self.tree.move(iid, "", index)
         
-        # Aplicar el estilo zebra según la nueva posición
+        # Apply zebra style based on new position
         for index, iid in enumerate(self.tree.get_children("")):
-            tag = self.tag_even if index % 2 == 0 else self.tag_odd
-            self.tree.item(iid, tags=(tag,))
+            tag = self.tag_even if index % 2 == 0 else self.tag_odd # zebra
+            self.tree.item(iid, tags=(tag,)) # zebra
 
         self._sort_state[col] = descending
         self._set_sort_indicators(active_col=col, descending=descending)
