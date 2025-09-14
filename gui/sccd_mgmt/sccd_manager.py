@@ -61,6 +61,7 @@ class AppStates(tk.Toplevel):
         ttk.Button(toolbar, text="Add log", command=self.open_add_log_popup).pack(side="left", padx=6)
         ttk.Button(toolbar, text="Export to Excel", command=self.export_to_excel).pack(side="left", padx=6)
         ttk.Button(toolbar, text="Clear", command=self.handle_clear).pack(side="left", padx=6)
+        ttk.Button(toolbar, text="Soft Clear", command=self.handle_soft_clear).pack(side="left", padx=6)
 
         # on_close callback
         self.on_close = on_close
@@ -107,6 +108,18 @@ class AppStates(tk.Toplevel):
             if row.get("state") == "INPRG":
                 row["state"] = "WORKPENDING"
                 self.async_update_state_in_server(row.get("wo_id", ""), "WORKPENDING")
+        self.table.load(rows)
+    
+    def handle_soft_clear(self):
+        """Reset the view based on DB and stop all timers.
+        - Reload from DB
+        - Set all time_min to 0
+        """
+        self.timers.cancel_all()
+
+        rows = self.sccd.get_work_orders()
+        for row in rows:
+            row["time_min"] = 0
         self.table.load(rows)
 
     # ---------- Update State popup ----------
