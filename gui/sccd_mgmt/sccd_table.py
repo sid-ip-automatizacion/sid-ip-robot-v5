@@ -55,6 +55,8 @@ class Table(ttk.Frame):
         # Zebra tags
         self.tag_even = "evenrow"
         self.tag_odd = "oddrow"
+        self.tree.tag_configure(self.tag_even, background="#717794") # zebra
+        self.tree.tag_configure(self.tag_odd, background="#525768") # zebra
 
         # Events
         self.tree.bind("<Double-1>", self._on_double_click)  # context-aware double click
@@ -86,14 +88,13 @@ class Table(ttk.Frame):
                     else:
                         vals.append(self._format_cell(col, row.get(col, "")))
 
-                tag = self.tag_even if i % 2 == 0 else self.tag_odd
-                self.tree.insert("", "end", iid=iid, values=vals, tags=(tag,))
+                tag = self.tag_even if i % 2 == 0 else self.tag_odd # zebra
+                self.tree.insert("", "end", iid=iid, values=vals, tags=(tag,)) # zebra
                 self._row_store[iid] = row.copy()
             else:
-                tag = self.tag_even if i % 2 == 0 else self.tag_odd
-                self.tree.insert("", "end", values=row, tags=(tag,))
-        self.tree.tag_configure(self.tag_even, background="#717794")
-        self.tree.tag_configure(self.tag_odd, background="#525768")
+                tag = self.tag_even if i % 2 == 0 else self.tag_odd # zebra
+                self.tree.insert("", "end", values=row, tags=(tag,)) # zebra
+
 
         # Reset sort indicators
         for col in self.columns:
@@ -200,6 +201,11 @@ class Table(ttk.Frame):
 
         for index, (_, iid) in enumerate(data):
             self.tree.move(iid, "", index)
+        
+        # Aplicar el estilo zebra según la nueva posición
+        for index, iid in enumerate(self.tree.get_children("")):
+            tag = self.tag_even if index % 2 == 0 else self.tag_odd
+            self.tree.item(iid, tags=(tag,))
 
         self._sort_state[col] = descending
         self._set_sort_indicators(active_col=col, descending=descending)
