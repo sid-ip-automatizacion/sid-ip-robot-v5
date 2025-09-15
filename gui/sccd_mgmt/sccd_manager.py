@@ -62,6 +62,12 @@ class AppStates(tk.Toplevel):
         ttk.Button(toolbar, text="Export to Excel", command=self.export_to_excel).pack(side="left", padx=6)
         ttk.Button(toolbar, text="Clear", command=self.handle_clear).pack(side="left", padx=6)
         ttk.Button(toolbar, text="Soft Clear", command=self.handle_soft_clear).pack(side="left", padx=6)
+        # Search functionality
+        self.search_var = tk.StringVar()
+        search_entry = ttk.Entry(toolbar, textvariable=self.search_var)
+        search_entry.bind("<Return>", lambda event: self.search_and_highlight())
+        search_entry.pack(side="right", padx=6)
+        ttk.Button(toolbar, text="Search", command=self.search_and_highlight).pack(side="right", padx=6)
 
         # on_close callback
         self.on_close = on_close
@@ -121,6 +127,35 @@ class AppStates(tk.Toplevel):
         for row in rows:
             row["time_min"] = 0
         self.table.load(rows)
+
+    # ---------- Search behavior ----------
+    def search_and_highlight(self):
+        query = self.search_var.get().strip().lower()
+        if not query:
+            self.reset_highlights()
+            return
+
+        # Reset previous highlights
+        self.reset_highlights()
+        # Check each cell in the row for a match
+        for iid in self.table.tree.get_children():
+            values = self.table.tree.item(iid, "values")
+            # Check if any cell contains the query (case insensitive)
+            if any(query in str(celda).lower() for celda in values):
+                # Add selection and make the row visible
+                self.table.tree.selection_add(iid)
+                self.table.tree.see(iid)
+                # Apply an tag to highlight the row
+                self.table.tree.item(iid, tags=("found",))
+        # Configure the 'found' tag with a distinct background (e.g., yellow)
+        self.table.tree.tag_configure("found", background="#A1A15E")
+    
+    def reset_highlights(self):
+        # Remover selección y restablecer el estilo zebra
+        self.table.tree.selection_remove(self.table.tree.selection())
+        for index, iid in enumerate(self.table.tree.get_children("")):
+            tag = self.table.tag_even if index % 2 == 0 else self.table.tag_odd
+            self.table.tree.item(iid, tags=(tag,))
 
     # ---------- Update State popup ----------
 
