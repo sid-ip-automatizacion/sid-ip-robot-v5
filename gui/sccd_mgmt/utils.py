@@ -39,3 +39,19 @@ def export_treeview_to_excel(tree: ttk.Treeview):
         messagebox.showinfo("Exportar a Excel", f"Archivo guardado:\n{filepath}")
     except Exception as e:
         messagebox.showerror("Error", f"No se pudo exportar el archivo.\n{e}")
+
+
+def parse_minutes(entry: str) -> int:
+    """
+    Convierte una entrada en formato 'hh:mm' a minutos,
+    o devuelve directamente los minutos si la entrada es solo un número.
+    """
+    try:
+        if ":" in entry:  # formato hh:mm
+            hh, mm = entry.split(":")
+            total_minutes = int(hh) * 60 + int(mm)
+            return total_minutes
+        else:  # solo minutos
+            return int(entry)
+    except ValueError:
+        raise ValueError(f"Formato inválido: {entry}. Use 'hh:mm' o minutos como número.")

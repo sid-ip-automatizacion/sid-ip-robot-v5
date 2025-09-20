@@ -9,7 +9,7 @@ from .sccd_table import Table
 from .wo_timers import WorkOrderTimers
 from core.sccd_connector import SCCD
 
-from .utils import export_treeview_to_excel
+from .utils import export_treeview_to_excel, parse_minutes
 from .mw_email_gen import generate_MW_email
 
 from .data import log_options, log_options_spanish, default_mw_text_1, default_mw_text_2
@@ -197,7 +197,7 @@ class AppStates(tk.Toplevel):
             state_combo.grid(row=0, column=1, sticky="w")
 
             # Timer minutes (INPRG only; 0 = no timer)
-            ttk.Label(form, text="Minutes (INPRG, 0 = no timer): ").grid(row=1, column=0, sticky="w", pady=(6,0))
+            ttk.Label(form, text="Time format 'mm' or 'hh:mm' (INPRG, 0 = no timer): ").grid(row=1, column=0, sticky="w", pady=(6,0))
             minutes_var = tk.StringVar(value="0")
             minutes_spin = ttk.Spinbox(form, from_=0, to=1440, textvariable=minutes_var, width=10, state="disabled")
             minutes_spin.grid(row=1, column=1, sticky="w", pady=(6,0))
@@ -219,7 +219,7 @@ class AppStates(tk.Toplevel):
                 minutes = 0
                 if target_state == "INPRG":
                     try:
-                        minutes = int(minutes_var.get())
+                        minutes = parse_minutes(minutes_var.get()) # Use utility to parse and validate format (mm or hh:mm)
                         if minutes < 0:
                             raise ValueError
                     except Exception:

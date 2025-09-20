@@ -1,4 +1,5 @@
 import tkinter
+import tkinter as tk
 from tkinter import ttk
 
 
@@ -11,7 +12,6 @@ Devuelve el id de la Organización o Dominio seleccionada
 
 
 def main(clients):
-
 
     class ClientSelected:
         def __init__(self):
@@ -90,3 +90,32 @@ def main(clients):
     select_win.mainloop()
     select_win.destroy()
     return client.clientID
+
+
+#Pendiente PPO
+class Client_Options(tk.Toplevel):
+    def __init__(self, parent, clients):
+        super().__init__(parent)
+        self.title("Select Client")
+        self.geometry('300x100')
+        self.client_id = None
+
+        label = tk.Label(self, text="Select a client:")
+        label.pack(pady=10)
+
+        self.clients = clients
+        self.client_var = tk.StringVar()
+        client_names = [client[0] for client in clients]
+        self.client_dropdown = ttk.Combobox(self, textvariable=self.client_var, values=client_names, state="readonly")
+        self.client_dropdown.pack(pady=5)
+
+        select_button = tk.Button(self, text="Select", command=self.select_client)
+        select_button.pack(pady=10)
+
+    def select_client(self):
+        selected_name = self.client_var.get()
+        for client in self.clients:
+            if client[0] == selected_name:
+                self.client_id = client[1]
+                break
+        self.destroy()
