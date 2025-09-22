@@ -314,6 +314,7 @@ class AppStates(tk.Toplevel):
             # row 1
             title_entry = tk.Text(form, width=50, height=1, wrap="word")
             title_entry.grid(row=1, column=1, sticky="w")
+            ttk.Label(form, text="P00: Project Info; N27: PM Name").grid(row=1, column=2, sticky="e")
             # row 2
             ttk.Label(form, text="Note:").grid(row=2, column=0, sticky="nw", pady=(6,0))
             note_text = tk.Text(form, width=50, height=12, wrap="word")
