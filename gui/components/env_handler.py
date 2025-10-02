@@ -1,4 +1,5 @@
 import os
+import sys
 import dotenv
 from pathlib import Path
 from passlib.context import CryptContext
@@ -15,9 +16,35 @@ class EnvHandler:
         self.master = master
         self.__hash_context = CryptContext(schemes=["pbkdf2_sha256"], default="pbkdf2_sha256",
                                                      pbkdf2_sha256__default_rounds=5000)  # Usado para hash del password
-        self.__env_path = Path(__file__).resolve().parent.parent.parent / '.env'  # Ruta absoluta al archivo .env
-        dotenv.load_dotenv(dotenv_path=self.__env_path)
+        #self.__env_path = Path(__file__).resolve().parent.parent.parent / '.env'  # Ruta absoluta al archivo .env
+        
         self.icon_path = Path(__file__).resolve().parent.parent.parent / 'resources' / 'icon.ico' #Ruta absoluta al archivo icon.ico
+
+        self.BASE_DIR: Path = self.app_base_dir()
+        self.__env_path: Path = self.BASE_DIR / ".env"
+        dotenv.load_dotenv(dotenv_path=self.__env_path)
+
+
+    def app_base_dir(self) -> Path:
+        """
+        Carpeta base de la aplicación:
+        - En .exe (PyInstaller): carpeta del ejecutable.
+        - En dev: raíz del proyecto (../.. desde este archivo).
+        """
+        if getattr(sys, "frozen", False):
+            return Path(sys.executable).parent
+        # Este archivo está en gui/components/, sube dos niveles a la raíz del repo
+        return Path(__file__).resolve().parents[2]
+
+
+
+    def resource_path(self, relative: str) -> str:
+        """
+        Devuelve una ruta a recursos empacados o locales (útil para iconos, etc.)
+        """
+        base = getattr(sys, "_MEIPASS", str(self.BASE_DIR))
+        return str((Path(base) / relative).resolve())
+
 
 
     def create_password(self):
@@ -51,6 +78,8 @@ class EnvHandler:
         lbl_state = ttk.Label(newpass_win, text="")
         lbl_state.grid(row=3, column=0)
         newpass_win.mainloop()
+
+
 
     def set_sccd_credentials(self):
         """
