@@ -94,8 +94,8 @@ class SCCD:
         # Remove specific patterns from WO description
         cleaned_text = text.upper()
         patterns= ("-", "(", ")", "NEW SERVICE", "SIDIP", "SID IP","NEW PROJECT", "(SIDIP)", "SID-IP", "NUEVO SERVICIO", "WIFI", "WI-FI", "WI FI", "MIGRATION", "MIGRACION",
-                            "DEAL", "SOLUCION", "SOLUTION", "SDWAN", "SD-WAN", "ROUTER", "LAN","SWITCH","ACCESS POINT", " AP ", "APS",
-                            "FIREWALL", "CISCO", "JUNIPER", "FORTIGATE", "FORTI", 'MANAGED', "ROUTER", "DIA", "RETAIL ANALYTICS",
+                            "DEAL ", "SOLUCION", "SOLUTION", "SDWAN", "SD-WAN", "ROUTER", "LAN ","SWITCH","ACCESS POINT", " AP ", "APS ",
+                            "FIREWALL", "CISCO", "JUNIPER", "FORTIGATE", "FORTI ", 'MANAGED', "ROUTER", "DIA ", "RETAIL ANALYTICS",
                             "DATA WIFI", "DATAWIFI", "NEW ",
                               "COLOMBIA", "HONDURAS", "GUATEMALA", "SALVADOR", "TRINIDAD", "JAMAICA", "REPUBLICA DOMINICANA", "BARBADOS", "CURAZAO", "PANAMA")
         for pattern in patterns:
