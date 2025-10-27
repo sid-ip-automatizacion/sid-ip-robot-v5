@@ -8,6 +8,7 @@ from pprint import pprint
 from .sccd_table import Table
 from .wo_timers import WorkOrderTimers
 from core.sccd_connector import SCCD
+from core import SCCD_WO
 
 from .utils import export_treeview_to_excel, parse_minutes
 from .mw_email_gen import generate_MW_email
@@ -49,7 +50,7 @@ class AppStates(tk.Toplevel):
             on_expire=self._on_timer_expired
         )
         # Initialize SCCD connector
-        self.sccd = SCCD(owner, user_sccd, pass_sccd)
+        self.sccd = SCCD_WO(owner, user_sccd, pass_sccd)
 
         # Load initial data
         self.reload_from_db()
