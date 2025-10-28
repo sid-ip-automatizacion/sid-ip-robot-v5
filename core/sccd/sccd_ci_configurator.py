@@ -79,14 +79,15 @@ class SCCD_CI_Configurator:
                       control_vlan: str,
                       dealcode: str,
                       managed_by: str = "CW",
-                      owner_by: str = "CW"
+                      owner_by: str = "CW",
+                      sup_exp: str = "NA"
                       ):
         """Update the configuration item of a single AP.
         Format of ap_data:
 
         {"name": "<ap_name>",
         "model": "<ap_model>",
-        "description": "<ap_model>",
+        "description": "<ap_description>",
         "site": "<ap_site>",
         "ip": "<ap_ip>",
         "mac": "<ap_mac>",
@@ -94,11 +95,14 @@ class SCCD_CI_Configurator:
         "status": "<ap_status>",
         "current_clients": "<ap_current_clients>",
         "address": "<ap_address>"}
-
+        
+        The function requieres addional parameters to fill the CI attributes.(vendor, controller, control_vlan, dealcode, managed_by, owner_by, sup_exp)
         """
 
         cid = self.extract_cid_from_ap_name(ap_data.get("name"))
-        self.sccd_ci.get_configuration_item(cid)
+        print(f"Updating CI for CID: {cid}")
+        data = self.sccd_ci.get_configuration_item(cid)
+        print(data)
         if 'error' in self.sccd_ci.conf_item_data:
             return self.sccd_ci.conf_item_data  # Return the error if occurred
         classstructureid = self.sccd_ci.conf_item_data.get('classstructureid')
@@ -107,32 +111,85 @@ class SCCD_CI_Configurator:
             if 'error' in change_response:
                 return change_response  # Return the error if occurred
 
-            
-
         
         cispec = [
-            {"assetattrid": "ATTRIBUTED", "value": "C&W"},
-            {"assetattrid": "SERIAL NUMBER", "value": ap_data.get("serial")},
-            {"assetattrid": "HOSTNAME", "value": ap_data.get("hostname")},
-            {"assetattrid": "RESOLVED_BY", "value": "C&W"},
-            {"assetattrid": "VENDOR", "value": vendor},
-            {"assetattrid": "MODEL WIFI", "value": self.model_selector(ap_data.get("model"))}, # Select closest matching model
-            {"assetattrid": "MAC ADDRESS", "value": ap_data.get("mac")},
-            {"assetattrid": "RELATED CONTROLLER ID", "value": controller},
-            {"assetattrid": "VLAN CONTROL", "value": control_vlan},
-            {"assetattrid": "DEAL", "value": dealcode},
-            {"assetattrid": "MANAGED BY", "value": managed_by}, # options: 'CW', 'Managed Level 2'
-            {"assetattrid": "OWNER BY", "value": owner_by}, # options: 'CW', 'CUSTOMER'
-            {"assetattrid": "DESCRIPTION/LOCATION", "value": ap_data.get("description")}
+            {"assetattrid": "ATTRIBUTED", "alnvalue": "C&W"},
+            {"assetattrid": "SERIAL NUMBER", "alnvalue": ap_data.get("serial")},
+            {"assetattrid": "HOSTNAME", "alnvalue": ap_data.get("name")},
+            {"assetattrid": "RESOLVED_BY", "alnvalue": "C&W"},
+            {"assetattrid": "VENDOR", "alnvalue": vendor},
+            {"assetattrid": "MODEL WIFI", "alnvalue": self.model_selector(ap_data.get("model"))}, # Select closest matching model
+            {"assetattrid": "MAC ADDRESS", "alnvalue": ap_data.get("mac")},
+            {"assetattrid": "RELATED CONTROLLER ID", "alnvalue": controller},
+            {"assetattrid": "VLAN CONTROL", "alnvalue": control_vlan},
+            {"assetattrid": "DEAL", "alnvalue": dealcode},
+            {"assetattrid": "MANAGED BY", "alnvalue": managed_by}, # options: 'CW', 'Managed Level 2'
+            {"assetattrid": "OWNER BY", "alnvalue": owner_by}, # options: 'CW', 'CUSTOMER'
+            {"assetattrid": "DESCRIPTION/LOCATION", "alnvalue": ap_data.get("description")},
+            {"assetattrid": "SUPPORT CONTRACT EXPIRATION DATE (YYYY-MM-DD)", "alnvalue": sup_exp}
         ]
         update_response = self.sccd_ci.update_ci_data(cispec)
+        print("CISPEC sent")
         return update_response
+    
+    def update_multiple_aps_ci(self, aps_data: List[dict],
+                             vendor: str,
+                             controller: str,
+                             control_vlan: str,
+                             dealcode: str,
+                             managed_by: str = "CW",
+                             owner_by: str = "CW",
+                             sup_exp: str = "NA"
+                             ):
+        """Update the configuration items of multiple APs.
+        Format of aps_data: List of dictionaries with the same format as in update_1ap_ci.
+        """
+        results = []
+        for ap_data in aps_data:
+            result = self.update_1ap_ci(ap_data,
+                                        vendor,
+                                        controller,
+                                        control_vlan,
+                                        dealcode,
+                                        managed_by,
+                                        owner_by,
+                                        sup_exp)
+            
+            results.append({ap_data.get("name"): result})
+            print(f"SCCD CI updated for AP: {ap_data.get('name')}, Result: {result}")
+
 
     
 
 if __name__ == "__main__":
-    devices=["50250279.1.1.CO_AHDSFO_DKDS", "12345678.2.2.US_ADSAI_DSADIS", "87654321.3.3.UK_DSIDI_DIS"]
     sccd_ci = SCCD_CI_Configurator("user", "pass")
-    for device in devices:
-        ci_data = sccd_ci.extract_cid_from_ap_name(device)
-        print(ci_data)
+
+    ap_info= [{"name": "8011868.SV_CLIENTE1_COMEDOR",
+"model": "MR36",
+"description": "Comedor",
+"site": "Oficina 35",
+"ip": "10.20.20.3",
+"mac": "00:33:58:0E:71:70",
+"serial": "Q3AJ-C3GD-S6VB",
+"status": "up-to-date",
+"current_clients": "10",
+"address": "calle 100 #24"},{"name": "23940535.1.22.SV_CLIENTE1_COMEDOR",
+    "model": "MR36",
+    "description": "Comedor",
+    "site": "Oficina 35",
+    "ip": "10.20.20.3",
+    "mac": "00:33:58:0E:71:70",
+    "serial": "Q3AJ-C3GD-S6VB",
+    "status": "up-to-date",
+    "current_clients": "10",
+    "address": "calle 100 #24"}]
+
+    post_r =sccd_ci.update_multiple_aps_ci(ap_info,
+                        vendor="Meraki",
+                        controller="Meraki Cloud",
+                        control_vlan="20",
+                        dealcode="000184236",
+                        managed_by="CW",
+                        owner_by="CW")
+    print(post_r)
+

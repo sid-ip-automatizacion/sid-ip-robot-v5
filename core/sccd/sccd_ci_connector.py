@@ -85,9 +85,7 @@ class SCCD_CI:
         if not patch_url:
             return {"error": "Configuration item href not found"}
 
-        patch_payload = {
-            "classstructureid": new_classstructureid
-        }
+        patch_payload = {'classstructureid': new_classstructureid}
 
         try:
             patch_response = self.session.post(patch_url, json=patch_payload,
