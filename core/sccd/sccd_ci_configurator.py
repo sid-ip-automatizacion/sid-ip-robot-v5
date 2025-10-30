@@ -43,7 +43,7 @@ class SCCD_CI_Configurator:
         tl = self.normalize_models(l)
         # Find the closest match
         for original_model, normalized_model in self.models_tuples:
-            if normalized_model in tl[0][1]:
+            if tl[0][1] in normalized_model:
                 return original_model
         return "N/A"  # Return N/A if no match found
 
@@ -168,26 +168,27 @@ class SCCD_CI_Configurator:
 
 if __name__ == "__main__":
     sccd_ci = SCCD_CI_Configurator("username", "pass")
-    """
+    
     ap_info= [{"name": "8011868.SV_CLIENTE1_COMEDOR",
-"model": "MR36",
-"description": "Comedor",
-"site": "Oficina 35",
-"ip": "10.20.20.3",
-"mac": "00:33:58:0E:71:70",
-"serial": "Q3AJ-C3GD-S6VB",
-"status": "up-to-date",
-"current_clients": "10",
-"address": "calle 100 #24"},{"name": "23940535.1.22.SV_CLIENTE1_COMEDOR",
-    "model": "MR36",
-    "description": "Comedor",
-    "site": "Oficina 35",
-    "ip": "10.20.20.3",
-    "mac": "00:33:58:0E:71:70",
-    "serial": "Q3AJ-C3GD-S6VB",
-    "status": "up-to-date",
-    "current_clients": "10",
-    "address": "calle 100 #24"}]
+        "model": "MR36",
+        "description": "Comedor",
+        "site": "Oficina 35",
+        "ip": "10.20.20.3",
+        "mac": "00:33:58:0E:71:70",
+        "serial": "Q3AJ-C3GD-S6VB",
+        "status": "up-to-date",
+        "current_clients": "10",
+        "address": "calle 100 #24"},
+        {"name": "23940535.1.22.SV_CLIENTE1_COMEDOR",
+        "model": "MR36",
+        "description": "Comedor",
+        "site": "Oficina 35",
+        "ip": "10.20.20.3",
+        "mac": "00:33:58:0E:71:70",
+        "serial": "Q3AJ-C3GD-S6VB",
+        "status": "up-to-date",
+        "current_clients": "10",
+        "address": "calle 100 #24"}]
 
     post_r =sccd_ci.update_multiple_aps_ci(ap_info,
                         vendor="Meraki",
@@ -196,8 +197,8 @@ if __name__ == "__main__":
                         dealcode="000184236",
                         managed_by="CW",
                         owner_by="CW")
-    """
+    
 
-    print(sccd_ci.models_tuples)
+    #print(sccd_ci.models_tuples)
 
 

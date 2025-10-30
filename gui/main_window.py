@@ -28,7 +28,7 @@ class UserEnvironment:
         Crea la ventana GUI donde se ejecutara el programa
         """
         self.__root = tkinter.Tk()  # Ventana principal
-        self.__root.geometry("450x350")
+        self.__root.geometry("450x400")
         self.__root.title('SID IP robot')
         self.__root.iconbitmap(self.icon_path)
         self.__root.tk.call("source", self.theme_path)
@@ -133,7 +133,7 @@ class UserEnvironment:
         Carga la ventana de manejo de APs
         """
         self.clear_work_area()  # Limpia el area de trabajo
-        ap_mgmt.main_function(self.get_work_area(), self.env.get_key_meraki())  # Ejecuta el manejo de APs en el ambiente del usuario
+        ap_mgmt.main_function(self.get_work_area(), self.env.get_key_meraki(), geo_callback=self.geometry)  # Ejecuta el manejo de APs en el ambiente del usuario
 
     def run_atp_sw(self):
         """
@@ -196,6 +196,13 @@ class UserEnvironment:
     def _child_closed_sccd_m(self):
         self.btn_sccd_m.config(state="normal")  # Habilita el boton cuando se cierra la ventana hija
         self.child_ref_sccd_m = False
+
+    def geometry(self, size: str):
+        """
+        Ajusta el tamaño de la ventana principal
+        :param size: Tamaño en formato WxH
+        """
+        self.__root.geometry(size)
     
 
     def show_about(self):
@@ -203,7 +210,7 @@ class UserEnvironment:
         Muestra la ventana Acerca de"
         """
         about_win = tkinter.Toplevel()
-        about_text = tkinter.Label(about_win, text='version: 5.0.12'
+        about_text = tkinter.Label(about_win, text='version: 5.1.1'
                                                    '\nSID-IP release'
                                                   '\n\nDesarrollado por SID-IP Team, Liberty Networks'
                                                   '\nEquipo de desarrollo:'

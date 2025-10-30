@@ -8,12 +8,13 @@ from core.ap_management import get_controller
 from core.ruckus import get_domains
 from core.meraki import get_org
 
+from gui.ap_sccd_doc_ui import AP_SCCD_Doc_UI
 from .components import error_window, save_excel, select_client, load_excel
 
 
 
 class APManagementGUI:    
-    def __init__(self, root_window, meraki_api_key):
+    def __init__(self, root_window, meraki_api_key, geo_callback=None):
         self.master = root_window
         self.current_state = tkinter.StringVar()
         self.current_state.set("select vendor and fill data")
@@ -22,6 +23,8 @@ class APManagementGUI:
         self.login_pass = tkinter.StringVar()
         self.url = tkinter.StringVar()
         self.fortikey = tkinter.StringVar()
+
+        self.geo_callback = geo_callback
 
         self.controller_info = {
             "vendor": None,
@@ -222,22 +225,28 @@ class APManagementGUI:
         btn_get_info.grid(row=6, column=0, sticky="", padx=6, pady=6)
 
         # Boton para generar el archivo completo
-        btn_complete_info = ttk.Button(self.frm, text='Fill AP Information', command=self.put)
+        btn_complete_info = ttk.Button(self.frm, text='Configure AP Information', command=self.put)
         btn_complete_info.grid(row=6, column=1, sticky="", padx=6, pady=6)
+
+        # sccd documentation 
+        sccd_documentation_frame = ttk.Frame(self.frm)
+        sccd_documentation_frame.grid(row=8, column=0, columnspan=2, pady=10)
+        ap_sccd_doc_ui = AP_SCCD_Doc_UI(sccd_documentation_frame, geo_callback=self.geo_callback)
+        
 
         # Mensage de estado
         state_lb = ttk.Label(self.frm, textvariable=self.current_state)
-        state_lb.grid(row=8, column=1)
+        state_lb.grid(row=9, column=1)
 
 
 
 
-def main_function(root_window, meraki_api_key):
+def main_function(root_window, meraki_api_key, geo_callback=None):
     """
     Función principal que se ejecuta al iniciar el script.
     Aquí puedes agregar la lógica que deseas ejecutar.
     """
-    gui_ap = APManagementGUI(root_window,meraki_api_key)  # Inicializa la interfaz gráfica
+    gui_ap = APManagementGUI(root_window,meraki_api_key, geo_callback=geo_callback)  # Inicializa la interfaz gráfica
     gui_ap.draw()  # Dibuja la interfaz gráfica
     print("Función principal ejecutada.")
 
