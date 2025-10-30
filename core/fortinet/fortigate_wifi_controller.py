@@ -5,6 +5,8 @@ Requisitos:
 Nota: Se deshabilita temporalmente la verificación TLS (verify=False).
       Sustitúyelo por un certificado válido en producción.
 """
+from pprint import pprint
+
 import requests
 import urllib3
 from pprint import pprint
@@ -18,6 +20,19 @@ class FortigateAPI:
     def __init__(self, controller_ip, api_key):
         self.controller_ip = controller_ip
         self.api_key = api_key
+
+
+    def profile_to_model(self, name: str) -> str:
+        """
+        Elimina los tres primeros caracteres y conserva los siguientes
+        hasta el primer guion "-".
+        Ejemplos:
+            "FAP234F-default"  -> "234F"
+            "FAP220B-Oficinas" -> "220B"
+        """
+        trimmed = name[3:]
+        return trimmed.split('-', 1)[0]
+
 
     # ---------- Consulta de APs ----------
     def query_aps(self, page_size: int = 100) -> List[Dict]:
@@ -38,10 +53,12 @@ class FortigateAPI:
             if len(vdom_ans['results']) > 0:
                 main_dic_results.extend(vdom_ans['results'])
         # ---------- Formateo de datos ----------
+        print("Datos crudos de APs obtenidos del FortiGate:")
+        pprint(main_dic_results)
         for ap in range(len(main_dic_results)):
             aps_list_dic.append(
                 {"name": main_dic_results[ap]['name'],
-                "model": main_dic_results[ap]['os_version'],
+                "model": self.profile_to_model(main_dic_results[ap]['ap_profile']),
                 "description": main_dic_results[ap]['location'],
                 "site": 'local',
                 "ip": main_dic_results[ap]['local_ipv4_addr'],

@@ -1,6 +1,7 @@
 import re
 from typing import List, Tuple
 from sccd_ci_connector import SCCD_CI
+from time import sleep
 
 class SCCD_CI_Configurator:
 
@@ -96,18 +97,21 @@ class SCCD_CI_Configurator:
         "current_clients": "<ap_current_clients>",
         "address": "<ap_address>"}
         
-        The function requieres addional parameters to fill the CI attributes.(vendor, controller, control_vlan, dealcode, managed_by, owner_by, sup_exp)
+        The method requieres addional parameters to fill the CI attributes.(vendor, controller, control_vlan, dealcode, managed_by, owner_by, sup_exp)
+        When the classstructureid of the CI is not of AP type (30019), it will be changed to that value.
         """
 
         cid = self.extract_cid_from_ap_name(ap_data.get("name"))
         print(f"Updating CI for CID: {cid}")
         data = self.sccd_ci.get_configuration_item(cid)
-        print(data)
+        print(f'href for {cid}',data.get('href'))
         if 'error' in self.sccd_ci.conf_item_data:
             return self.sccd_ci.conf_item_data  # Return the error if occurred
         classstructureid = self.sccd_ci.conf_item_data.get('classstructureid')
         if classstructureid != "30019":  # AP classstructureid
             change_response = self.sccd_ci.change_classstructureid("30019")
+            print("Changed classstructureid to 30019 (C&W MANAGED WI-FI AP) for CID: ", cid)
+            sleep(2) # Wait for SCCD to process the change
             if 'error' in change_response:
                 return change_response  # Return the error if occurred
 
@@ -129,8 +133,8 @@ class SCCD_CI_Configurator:
             {"assetattrid": "SUPPORT CONTRACT EXPIRATION DATE (YYYY-MM-DD)", "alnvalue": sup_exp}
         ]
         update_response = self.sccd_ci.update_ci_data(cispec)
-        print("CISPEC sent")
-        return update_response
+        print("CISPEC sent to SCCD for update")
+        return (cid,update_response)
     
     def update_multiple_aps_ci(self, aps_data: List[dict],
                              vendor: str,
@@ -155,15 +159,16 @@ class SCCD_CI_Configurator:
                                         owner_by,
                                         sup_exp)
             
-            results.append({ap_data.get("name"): result})
+            results.append({result[0]: result[1]})
             print(f"SCCD CI updated for AP: {ap_data.get('name')}, Result: {result}")
+        return results
 
 
     
 
 if __name__ == "__main__":
-    sccd_ci = SCCD_CI_Configurator("user", "pass")
-
+    sccd_ci = SCCD_CI_Configurator("username", "pass")
+    """
     ap_info= [{"name": "8011868.SV_CLIENTE1_COMEDOR",
 "model": "MR36",
 "description": "Comedor",
@@ -191,5 +196,8 @@ if __name__ == "__main__":
                         dealcode="000184236",
                         managed_by="CW",
                         owner_by="CW")
-    print(post_r)
+    """
+
+    print(sccd_ci.models_tuples)
+
 
