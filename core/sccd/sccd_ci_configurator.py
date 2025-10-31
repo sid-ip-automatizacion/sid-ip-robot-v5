@@ -1,7 +1,8 @@
 import re
 from typing import List, Tuple
-from sccd_ci_connector import SCCD_CI
 from time import sleep
+
+from .sccd_ci_connector import SCCD_CI
 
 class SCCD_CI_Configurator:
 
@@ -118,7 +119,7 @@ class SCCD_CI_Configurator:
         
         cispec = [
             {"assetattrid": "ATTRIBUTED", "alnvalue": "C&W"},
-            {"assetattrid": "SERIAL NUMBER", "alnvalue": ap_data.get("serial")},
+            {"assetattrid": "SERIAL NUMBER", "alnvalue": str(ap_data.get("serial"))},
             {"assetattrid": "HOSTNAME", "alnvalue": ap_data.get("name")},
             {"assetattrid": "RESOLVED_BY", "alnvalue": "C&W"},
             {"assetattrid": "VENDOR", "alnvalue": vendor},
@@ -150,6 +151,7 @@ class SCCD_CI_Configurator:
         """
         results = []
         for ap_data in aps_data:
+            print("AP DATA:", ap_data)
             result = self.update_1ap_ci(ap_data,
                                         vendor,
                                         controller,
@@ -167,36 +169,26 @@ class SCCD_CI_Configurator:
     
 
 if __name__ == "__main__":
-    sccd_ci = SCCD_CI_Configurator("username", "pass")
+    sccd_ci = SCCD_CI_Configurator("username", "password")
     
-    ap_info= [{"name": "8011868.SV_CLIENTE1_COMEDOR",
-        "model": "MR36",
-        "description": "Comedor",
+    ap_info= [{"name": "8011868.SV_TEST-AP-SIDIP-BQA",
+        "model": "R510",
+        "description": "Ubicacion Luis",
         "site": "Oficina 35",
         "ip": "10.20.20.3",
-        "mac": "00:33:58:0E:71:70",
-        "serial": "Q3AJ-C3GD-S6VB",
-        "status": "up-to-date",
-        "current_clients": "10",
-        "address": "calle 100 #24"},
-        {"name": "23940535.1.22.SV_CLIENTE1_COMEDOR",
-        "model": "MR36",
-        "description": "Comedor",
-        "site": "Oficina 35",
-        "ip": "10.20.20.3",
-        "mac": "00:33:58:0E:71:70",
-        "serial": "Q3AJ-C3GD-S6VB",
+        "mac": "60:D0:2C:32:27:30",
+        "serial": "161809013525",
         "status": "up-to-date",
         "current_clients": "10",
         "address": "calle 100 #24"}]
 
     post_r =sccd_ci.update_multiple_aps_ci(ap_info,
-                        vendor="Meraki",
-                        controller="Meraki Cloud",
+                        vendor="Ruckus",
+                        controller="OTT Controller",
                         control_vlan="20",
-                        dealcode="000184236",
+                        dealcode="12345678",
                         managed_by="CW",
-                        owner_by="CW")
+                        owner_by="CUSTOMER")
     
 
     #print(sccd_ci.models_tuples)

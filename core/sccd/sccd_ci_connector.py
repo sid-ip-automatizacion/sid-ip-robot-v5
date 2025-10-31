@@ -71,7 +71,7 @@ class SCCD_CI:
                 ap_models = [item.get('value', 'N/A') for item in ap_models_data_dic.get('member')[0].get('alndomain')]
                 return ap_models
             else:
-                return {"error": "Failed to retrieve AP models"}
+                return "Failed to retrieve AP models"
         except Exception as e:
             return {"error": str(e)}
 
@@ -92,9 +92,9 @@ class SCCD_CI:
                                                 headers=self.patch_headers,
                                                 auth=(self.user_sccd, self.pass_sccd))
             if patch_response.status_code in [200, 204]:
-                return {"success": f"Classstructureid updated to {new_classstructureid}"}
+                return f"success, Classstructureid updated to {new_classstructureid}"
             else:
-                return {"error": "Failed to update classstructureid"}
+                return f"Error, Failed to update classstructureid, error code: {patch_response.status_code}"
         except Exception as e:
             return {"error": str(e)}
 
@@ -102,6 +102,7 @@ class SCCD_CI:
 
         """Update the configuration item data."""
         data = {'cispec': cispec} # cispec structure: [{assetattrid: "ATTR_ID", value: "NEW_VALUE"}, ...]
+        print("Updating CI data")
         patch_url = self.conf_item_data.get('href')  # Get the href for the configuration item
 
         if not patch_url:
@@ -111,10 +112,11 @@ class SCCD_CI:
             patch_response = self.session.post(patch_url, json=data,
                                                 headers=self.patch_headers,
                                                 auth=(self.user_sccd, self.pass_sccd))
+            print(patch_response.status_code, patch_response.text)
             if patch_response.status_code in [200, 204]:
-                return {"success": "Configuration item updated successfully"}
+                return f"success, CI updated to {data}"
             else:
-                return {"error": "Failed to update configuration item"}
+                return f"Error, Failed to update classstructureid, error code: {patch_response.status_code}"
         except Exception as e:
             return {"error": str(e)}
 

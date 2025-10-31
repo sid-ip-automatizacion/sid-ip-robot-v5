@@ -133,7 +133,11 @@ class UserEnvironment:
         Carga la ventana de manejo de APs
         """
         self.clear_work_area()  # Limpia el area de trabajo
-        ap_mgmt.main_function(self.get_work_area(), self.env.get_key_meraki(), geo_callback=self.geometry)  # Ejecuta el manejo de APs en el ambiente del usuario
+        ap_mgmt.main_function(root_window = self.get_work_area(), # Ejecuta el manejo de APs en el ambiente del usuario
+                              meraki_api_key = self.env.get_key_meraki(), 
+                              sccd_username = self.env.get_user_sccd(),
+                              sccd_pass = self.env.get_pass_sccd(),
+                              geo_callback=self.geometry)  
 
     def run_atp_sw(self):
         """

@@ -7,6 +7,7 @@ from tkinter import ttk
 from core.ap_management import get_controller
 from core.ruckus import get_domains
 from core.meraki import get_org
+from core import SCCD_CI_CONF
 
 from gui.ap_sccd_doc_ui import AP_SCCD_Doc_UI
 from .components import error_window, save_excel, select_client, load_excel
@@ -14,7 +15,7 @@ from .components import error_window, save_excel, select_client, load_excel
 
 
 class APManagementGUI:    
-    def __init__(self, root_window, meraki_api_key, geo_callback=None):
+    def __init__(self, root_window, meraki_api_key, sccd_username, sccd_pass, geo_callback=None):
         self.master = root_window
         self.current_state = tkinter.StringVar()
         self.current_state.set("select vendor and fill data")
@@ -25,6 +26,9 @@ class APManagementGUI:
         self.fortikey = tkinter.StringVar()
 
         self.geo_callback = geo_callback
+        self.ap_sccd_doc_ui = None
+        self.sccd_username = sccd_username
+        self.sccd_pass = sccd_pass
 
         self.controller_info = {
             "vendor": None,
@@ -123,7 +127,34 @@ class APManagementGUI:
             controller = get_controller(self.controller_info)  # Genera el controlador según la información de controller_info
             controller.put()  # Envía la información de los puntos de acceso al controlador
             self.current_state.set("AP information updated successfully")
-            print("AP information updated successfully")
+            print("AP information updated successfully on the controller")
+
+            if self.ap_sccd_doc_ui.sccd_doc : # Si la documentación SCCD está habilitada, actualiza la información en SCCD
+                #Vendor normalization
+                vendor = None
+                if self.vendor_selected == 'ruckus':
+                    vendor = 'Ruckus'
+                elif self.vendor_selected == 'meraki':
+                    vendor = 'Meraki'
+                elif self.vendor_selected == 'forti':
+                    vendor = 'Fortinet'
+                try:
+                    #SCCD CI Configuration
+                    sccd_ap_ci_config = SCCD_CI_CONF(self.sccd_username, self.sccd_pass)
+                    sccd_ap_ci_config.update_multiple_aps_ci(self.controller_info['ap_list'], # Update SCCD CI for multiple APs
+                                                            vendor=vendor, # Vendor name
+                                                            controller=self.ap_sccd_doc_ui.controller_cid.get(), # Controller CID
+                                                            control_vlan=self.ap_sccd_doc_ui.control_vlan.get(), # Control VLAN
+                                                            dealcode=self.ap_sccd_doc_ui.dealcode.get(), # Deal code
+                                                            managed_by="Managed Level 2" if self.ap_sccd_doc_ui.managed_by_customer.get() else "CW", # Managed by
+                                                            owner_by="CUSTOMER" if self.ap_sccd_doc_ui.owner_by_customer.get() else "CW", # Owner by
+                                                            sup_exp=self.ap_sccd_doc_ui.sup_info.get() # Support expiration date
+                                                            )
+                except Exception as e:
+                    error_window(f"Error initializing SCCD CI Configurator: {e}")
+                    print(f"Error initializing SCCD CI Configurator: {e}")
+                    return
+
         except Exception as e:
             error_window(f"Error updating AP information: {e}")
             print(f"Error updating AP information: {e}")
@@ -231,7 +262,7 @@ class APManagementGUI:
         # sccd documentation 
         sccd_documentation_frame = ttk.Frame(self.frm)
         sccd_documentation_frame.grid(row=8, column=0, columnspan=2, pady=10)
-        ap_sccd_doc_ui = AP_SCCD_Doc_UI(sccd_documentation_frame, geo_callback=self.geo_callback)
+        self.ap_sccd_doc_ui = AP_SCCD_Doc_UI(sccd_documentation_frame, geo_callback=self.geo_callback)
         
 
         # Mensage de estado
@@ -241,12 +272,16 @@ class APManagementGUI:
 
 
 
-def main_function(root_window, meraki_api_key, geo_callback=None):
+def main_function(root_window, meraki_api_key, sccd_username, sccd_pass, geo_callback=None):
     """
     Función principal que se ejecuta al iniciar el script.
     Aquí puedes agregar la lógica que deseas ejecutar.
     """
-    gui_ap = APManagementGUI(root_window,meraki_api_key, geo_callback=geo_callback)  # Inicializa la interfaz gráfica
+    gui_ap = APManagementGUI(root_window= root_window,
+                             meraki_api_key= meraki_api_key,
+                             sccd_username = sccd_username, 
+                             sccd_pass = sccd_pass, 
+                             geo_callback=geo_callback)  # Inicializa la interfaz gráfica
     gui_ap.draw()  # Dibuja la interfaz gráfica
     print("Función principal ejecutada.")
 

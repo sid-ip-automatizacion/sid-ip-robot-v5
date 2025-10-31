@@ -9,7 +9,7 @@ class AP_SCCD_Doc_UI:
         self.sccd_doc = tk.BooleanVar(value=False)
         self.owner_by_customer = tk.BooleanVar(value=False)
         self.managed_by_customer = tk.BooleanVar(value=False)
-        self.controller_cidr = tk.StringVar(value="")
+        self.controller_cid = tk.StringVar(value="")
         self.control_vlan = tk.StringVar(value="")
         self.dealcode = tk.StringVar(value="")
         self.sup_info = tk.StringVar(value="")
@@ -41,7 +41,7 @@ class AP_SCCD_Doc_UI:
         ttk.Checkbutton(self.sccd_varibles_frame, text="Managed by Customer", variable=self.managed_by_customer).grid(row=0, column=2)
 
         ttk.Label(self.sccd_varibles_frame, text="Controller CID:").grid(row=1, column=0, sticky="w")
-        ttk.Entry(self.sccd_varibles_frame, textvariable=self.controller_cidr).grid(row=1, column=1)
+        ttk.Entry(self.sccd_varibles_frame, textvariable=self.controller_cid).grid(row=1, column=1)
 
         ttk.Label(self.sccd_varibles_frame, text="Control VLAN:").grid(row=1, column=2, sticky="w")
         ttk.Entry(self.sccd_varibles_frame, textvariable=self.control_vlan).grid(row=1, column=3)
