@@ -151,18 +151,39 @@ class SCCD:
                 return {"error": f"Failed to add log to work order {wo_id}"}
         except Exception as e:
             return {"error": str(e)}
+    
+    def add_cis_to_work_order(self, wo_id, cids: list[dict]):
+        # Add CIs to the work order
+        try:
+            href_post = self.get_post_url(wo_id)
+            ci_list = [{"cinum": cid["cid"], "targetdesc": cid["description"]} for cid in cids]
+
+            jedi = {
+                "multiassetlocci": ci_list
+            }
+
+            post_response = self.session.post(href_post, json=jedi, headers=self.myheaders, auth=(self.user_sccd, self.pass_sccd))
+            if post_response.status_code in [200, 201]:
+                return {"success": f"CIs added to work order/ task {wo_id}"}
+            else:
+                return {"error": f"Failed to add CIs to work order/ task {wo_id}"}
+        except Exception as e:
+            return {"error": str(e)}
 
 
 def main(): 
-    owner = " "  # user
-    user_sccd = " "  # SCCD user
-    pass_sccd = " "  # SCCD password
+    owner = "ouwe"  # user
+    user_sccd = "user_sccd"  # SCCD user
+    pass_sccd = "pass_sccd"  # SCCD password
 
     sccd_con = SCCD(owner, user_sccd, pass_sccd)
-    data=sccd_con.get_work_orders()
-    pprint(data)
+    cids = [
+        {"cid": "8011868.SV", "description": "AP MERAKI"},
+        {"cid": "23940535.1.22.SV", "description": "RUCKUS AP"}
+    ]
 
-
+    result = sccd_con.add_cis_to_work_order("WO2018345", cids)
+    pprint(result)
 
 
 if __name__ == "__main__":

@@ -12,7 +12,7 @@ from .components import EnvHandler
 from . import ap_management_ui as ap_mgmt
 from . import sw_meraki_atp_ui as sw_m_atp
 from .sccd_mgmt.sccd_manager import run_sccd_manager
-
+from .sccd_mgmt.m_asset_assig import main_function as maa_function
 
 class UserEnvironment:
     """
@@ -145,6 +145,16 @@ class UserEnvironment:
         """
         self.clear_work_area()  # Limpia el area de trabajo
         sw_m_atp.main_function(self.get_work_area(), self.env.get_key_meraki())  # Ejecuta la venta  de ATP switches en el ambiente usuario
+    
+    def run_multi_asset_assignment(self):
+        """
+        Carga la ventana de asignacion multiple de activos
+        """
+        self.clear_work_area()  # Limpia el area de trabajo
+        maa_function(self.get_work_area(),
+                  self.env.get_owner_sccd(),
+                  self.env.get_user_sccd(),
+                  self.env.get_pass_sccd())  # Ejecuta la venta  de ATP switches en el ambiente usuario
 
     def initial_work_area(self):
         """
@@ -157,9 +167,11 @@ class UserEnvironment:
         self.btn_sccd_m = ttk.Button(master=self.get_work_area(), text="SCCD Management", command=self.run_states)
         self.btn_aps = ttk.Button(master=self.get_work_area(), text="AP Management", command=self.run_aps)
         self.btn_sw_atp = ttk.Button(master=self.get_work_area(), text="Meraki SW ATP", command=self.run_atp_sw)
+        self.btn_sccd_maa = ttk.Button(master=self.get_work_area(), text="Multi-Asset assignment", command=self.run_multi_asset_assignment)
         self.btn_sccd_m.pack(side="top", padx=12, pady=12)
         self.btn_aps.pack(side="top", padx=12, pady=12)
         self.btn_sw_atp.pack(side="top", padx=12, pady=12)
+        self.btn_sccd_maa.pack(side="top", padx=12, pady=12)
 
         if self.child_ref_sccd_m:
             self.btn_sccd_m.config(state="disabled")  # Deshabilita el boton si la ventana hija sigue abierta
