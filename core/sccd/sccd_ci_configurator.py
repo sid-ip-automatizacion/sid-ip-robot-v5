@@ -6,6 +6,10 @@ from .sccd_ci_connector import SCCD_CI
 
 class SCCD_CI_Configurator:
 
+    """
+    Class used to normalize data and interact with SCCD_CI
+    """
+
     def __init__(self, user_sccd, pass_sccd):
         self.user_sccd = user_sccd
         self.pass_sccd = pass_sccd

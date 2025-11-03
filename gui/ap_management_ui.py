@@ -26,6 +26,7 @@ class APManagementGUI:
         self.fortikey = tkinter.StringVar()
 
         self.geo_callback = geo_callback
+        self.geo_callback("400x400")
         self.ap_sccd_doc_ui = None
         self.sccd_username = sccd_username
         self.sccd_pass = sccd_pass
@@ -283,7 +284,6 @@ def main_function(root_window, meraki_api_key, sccd_username, sccd_pass, geo_cal
                              sccd_pass = sccd_pass, 
                              geo_callback=geo_callback)  # Inicializa la interfaz gráfica
     gui_ap.draw()  # Dibuja la interfaz gráfica
-    print("Función principal ejecutada.")
 
 
 if __name__ == '__main__':

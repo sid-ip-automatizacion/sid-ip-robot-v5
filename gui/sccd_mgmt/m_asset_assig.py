@@ -29,6 +29,6 @@ def main_function(root_win, sccd_owner, sccd_user, sccd_pass):
 
     # Botón para asignación masiva de activos en SCCD
 
-    ttk.Label(root_win, text="Work Order/Task ID:").pack()
-    ttk.Entry(root_win, textvariable=wo_tk).pack()
-    ttk.Button(root_win, text='Multi-Asset Assignment', command=lambda: assign_assets_button_function(wo_tk.get())).pack()
+    ttk.Label(root_win, text="Work Order/Task ID:").pack(padx=15, pady=15)
+    ttk.Entry(root_win, textvariable=wo_tk).pack(padx=15,pady=15)
+    ttk.Button(root_win, text='Multi-Asset Assignment', command=lambda: assign_assets_button_function(wo_tk.get())).pack(padx=15,pady=15)

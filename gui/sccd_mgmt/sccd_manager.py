@@ -7,7 +7,6 @@ from pprint import pprint
 
 from .sccd_table import Table
 from .wo_timers import WorkOrderTimers
-from core.sccd_connector import SCCD
 from core import SCCD_WO
 
 from .utils import export_treeview_to_excel, parse_minutes
@@ -37,7 +36,7 @@ class AppStates(tk.Toplevel):
         self.columns = ["wo_id", "description", "state", "last_update", "cid_count", "project_info", "pm", "time_min"]
         self.headings = ["WO ID ▲/▼", "Description ▲/▼", "Estate ▲/▼", "Last Update ▲/▼", "CID # ▲/▼", "Project Info ▲/▼", "PM ▲/▼", "Time (min) ▲/▼"]
 
-        self.table = Table(self, columns=self.columns, headings=self.headings, height=14)
+        self.table = Table(self, columns=self.columns, headings=self.headings, height=14, user_sccd=user_sccd, pass_sccd=pass_sccd)
         self.table.pack(fill="both", expand=True, padx=10, pady=10)
 
         # Executor for async DB updates (server calls)

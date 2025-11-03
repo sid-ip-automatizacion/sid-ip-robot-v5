@@ -3,6 +3,7 @@ from tkinter import ttk, messagebox
 import json
 
 from .utils import export_treeview_to_excel
+from core.sccd.sccd_loc_connector import SCCD_LOC
 
 class Table(ttk.Frame):
     """
@@ -18,7 +19,7 @@ class Table(ttk.Frame):
       - Public API: load, clear_view, get_selected(), get_selected_full()
       - Helper API: set_cell(wo_id, col, value), set_state(wo_id, state), has_row(wo_id)
     """
-    def __init__(self, parent, columns, headings=None, show='headings', height=12):
+    def __init__(self, parent, columns, headings=None, show='headings', height=12, user_sccd = None, pass_sccd = None):
         super().__init__(parent)
         self.columns = columns
         self.headings = headings or columns
@@ -64,6 +65,9 @@ class Table(ttk.Frame):
 
         # Sort state
         self._sort_state = {c: None for c in self.columns}
+
+        # SCCD LOC Connector
+        self.sccd_loc = SCCD_LOC(user_sccd, pass_sccd)
 
     # -------------------- Public API --------------------
 
@@ -310,9 +314,18 @@ class Table(ttk.Frame):
 
         tv.bind("<Double-1>", on_copy)
 
+        def _export_treeview_to_excel(tv, get_loc_bool):
+            if get_loc_bool:
+                export_treeview_to_excel(tv, self._get_exact_location)
+            else:
+                export_treeview_to_excel(tv)
+
+
         btnbar = ttk.Frame(container)
         btnbar.pack(fill="x", pady=(8, 0))
-        ttk.Button(btnbar, text="Export to Excel", command=lambda: export_treeview_to_excel(tv)).pack(side="left")
+        get_loc = tk.BooleanVar(value=False)
+        ttk.Button(btnbar, text="Export to Excel", command=lambda: _export_treeview_to_excel(tv, get_loc.get())).pack(side="left")
+        ttk.Checkbutton(btnbar, text="Get exact locations", variable=get_loc).pack(side="left", padx=(10,0))
         ttk.Button(btnbar, text="Close", command=popup.destroy).pack(side="right")
 
     # -------------------- Helpers --------------------
@@ -409,3 +422,24 @@ class Table(ttk.Frame):
             except Exception:
                 continue
         return None
+    
+    # -------------------- Location Fetcher for CIDs --------------------
+    def _get_exact_location(self, headers : list, rows : list[tuple]) -> list:
+        # Add exact location address to each row based on location ID
+        new_headers = headers + ["address"]
+        new_rows = []
+        locs =[]
+        for row in rows:
+            locs.append(row[1])  # location is at index 1
+        locs = list(set(locs))  # unique locations
+        print("Fetching exact locations for:", locs)
+        locs_data = {}
+        for loc in locs:
+            loc_data = self.sccd_loc.get_location(loc)
+            print(f"Location data for {loc}:", loc_data)
+            locs_data[loc] = loc_data.get("address", "N/A") if isinstance(loc_data, dict) else "N/A"
+        for row in rows:
+            address = locs_data.get(row[1], "N/A")  # location is at index 1
+            new_row = list(row) + [address]
+            new_rows.append(tuple(new_row))
+        return new_headers, new_rows

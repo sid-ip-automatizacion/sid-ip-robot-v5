@@ -3,13 +3,13 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import pandas as pd
 
-def export_treeview_to_excel(tree: ttk.Treeview):
+def export_treeview_to_excel(tree: ttk.Treeview, callback = None):
     """
     Exporta todo el contenido de un ttk.Treeview a Excel,
     """
     # 1) Encabezados de las columnas
     cols = list(tree["columns"])
-    headers = [tree.heading(c)["text"] or c for c in cols]
+    headers = [tree.heading(c)["text"].lower() or c for c in cols]
 
     # 2) Datos
     rows = []
@@ -21,8 +21,17 @@ def export_treeview_to_excel(tree: ttk.Treeview):
         messagebox.showwarning("Exportar a Excel", "El Treeview no tiene datos.")
         return
 
+    # 2.5) Call back para modificar datos antes de exportar
+    new_headers = None
+    new_rows = None
+    if callback :
+        new_headers, new_rows = callback(headers, rows)
+    else:
+        new_headers, new_rows = headers, rows
+
+
     # 3) DataFrame
-    df = pd.DataFrame(rows, columns=headers)
+    df = pd.DataFrame(new_rows, columns=new_headers)
 
     # 4) Guardar archivo
     filepath = filedialog.asksaveasfilename(
@@ -31,6 +40,7 @@ def export_treeview_to_excel(tree: ttk.Treeview):
         filetypes=[("Excel", "*.xlsx")],
         confirmoverwrite=True,
     )
+    print("File saved:", filepath)
     if not filepath:
         return
 

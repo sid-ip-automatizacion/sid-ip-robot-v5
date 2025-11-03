@@ -9,6 +9,10 @@ from datetime import datetime
 
 
 class SCCD:
+    """
+    Class used to stablished connection with sccd and manage WOs
+
+    """
 
     def __init__(self, owner, user_sccd, pass_sccd):
         self.owner = owner
@@ -124,8 +128,10 @@ class SCCD:
             json={"status": new_state}
             post_response = self.session.post(href_post, json=json, headers=self.myheaders, auth=(self.user_sccd, self.pass_sccd))
             if post_response.status_code in [200, 201]:
+                print(f"success, Work order {wo_id} status changed to {new_state}")
                 return {"success": f"Work order {wo_id} status changed to {new_state}"}
             else:
+                print(f"error, Failed to change status for work order {wo_id}")
                 return {"error": f"Failed to change status for work order {wo_id}"}
         except Exception as e:
             return {"error": str(e)}
@@ -146,6 +152,7 @@ class SCCD:
 
             post_response = self.session.post(href_post, json=jedi, headers=self.myheaders, auth=(self.user_sccd, self.pass_sccd))
             if post_response.status_code in [200, 201]:
+                print(f"success, Log added to work order {wo_id}")
                 return {"success": f"Log added to work order {wo_id}"}
             else:
                 return {"error": f"Failed to add log to work order {wo_id}"}
@@ -153,7 +160,7 @@ class SCCD:
             return {"error": str(e)}
     
     def add_cis_to_work_order(self, wo_id, cids: list[dict]):
-        # Add CIs to the work order
+        # Add CIs to the work order or Task
         try:
             href_post = self.get_post_url(wo_id)
             ci_list = [{"cinum": cid["cid"], "targetdesc": cid["description"]} for cid in cids]

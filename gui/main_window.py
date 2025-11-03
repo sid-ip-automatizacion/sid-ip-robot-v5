@@ -4,7 +4,7 @@ from pathlib import Path
 import tkinter    
 from tkinter import ttk
 
-from core.sccd_connector import SCCD
+from core import SCCD_WO as SCCD
 
 from .components.utils import error_window
 from .components import EnvHandler 
@@ -28,7 +28,7 @@ class UserEnvironment:
         Crea la ventana GUI donde se ejecutara el programa
         """
         self.__root = tkinter.Tk()  # Ventana principal
-        self.__root.geometry("450x400")
+        self.__root.geometry("250x400")
         self.__root.title('SID IP robot')
         self.__root.iconbitmap(self.icon_path)
         self.__root.tk.call("source", self.theme_path)
@@ -75,7 +75,7 @@ class UserEnvironment:
         self.funmenu.add_command(label="Meraki SW ATP", command=self.run_atp_sw)
         self.funmenu.add_separator()
         """
-        self.funmenu.add_command(label="Return to init", command=self.initial_work_area)
+        self.funmenu.add_command(label="Return to menu", command=self.initial_work_area)
         # Menu Acerca de
         self.infomenu = tkinter.Menu(self.menubar, tearoff=0)
         self.infomenu.add_command(label="About", command=self.show_about)
@@ -164,10 +164,10 @@ class UserEnvironment:
         3. Meraki SW ATP
         """
         self.clear_work_area()  # Limpia el area de trabajo
-        self.btn_sccd_m = ttk.Button(master=self.get_work_area(), text="SCCD Management", command=self.run_states)
+        self.btn_sccd_m = ttk.Button(master=self.get_work_area(), text="SCCD WO Management", command=self.run_states)
         self.btn_aps = ttk.Button(master=self.get_work_area(), text="AP Management", command=self.run_aps)
         self.btn_sw_atp = ttk.Button(master=self.get_work_area(), text="Meraki SW ATP", command=self.run_atp_sw)
-        self.btn_sccd_maa = ttk.Button(master=self.get_work_area(), text="Multi-Asset assignment", command=self.run_multi_asset_assignment)
+        self.btn_sccd_maa = ttk.Button(master=self.get_work_area(), text="SCCD Multi-Asset assignment", command=self.run_multi_asset_assignment)
         self.btn_sccd_m.pack(side="top", padx=12, pady=12)
         self.btn_aps.pack(side="top", padx=12, pady=12)
         self.btn_sw_atp.pack(side="top", padx=12, pady=12)
