@@ -109,7 +109,6 @@ class SCCD_CI_Configurator:
         cid = self.extract_cid_from_ap_name(ap_data.get("name"))
         print(f"Updating CI for CID: {cid}")
         data = self.sccd_ci.get_configuration_item(cid)
-        print(f'href for {cid}',data.get('href'))
         if 'error' in self.sccd_ci.conf_item_data:
             return self.sccd_ci.conf_item_data  # Return the error if occurred
         classstructureid = self.sccd_ci.conf_item_data.get('classstructureid')
@@ -138,7 +137,7 @@ class SCCD_CI_Configurator:
             {"assetattrid": "SUPPORT CONTRACT EXPIRATION DATE (YYYY-MM-DD)", "alnvalue": sup_exp}
         ]
         update_response = self.sccd_ci.update_ci_data(cispec)
-        print("CISPEC sent to SCCD for update")
+        print(f"{cid} CISPEC sent to SCCD for update")
         return (cid,update_response)
     
     def update_multiple_aps_ci(self, aps_data: List[dict],

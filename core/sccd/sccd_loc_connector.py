@@ -3,6 +3,8 @@ import requests
 
 
 class SCCD_LOC:
+ 
+    """ Class use to request location details"""
     
     def __init__(self, user_sccd, pass_sccd):
         self.url_sccd = 'https://servicedesk.cwc.com/maximo/' 

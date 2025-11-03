@@ -41,6 +41,7 @@ class SCCD:
             if response.status_code == 200:
                 wos_data_dic = response.json()
                 wos_data_normalized = SCCD.normalize_work_order_data(wos_data_dic)
+                print(f"{len(wos_data_normalized)} workorders are assigned to {self.owner}")
                 return wos_data_normalized
             else:
                 return {"error": "Failed to retrieve work orders"}
@@ -152,7 +153,7 @@ class SCCD:
 
             post_response = self.session.post(href_post, json=jedi, headers=self.myheaders, auth=(self.user_sccd, self.pass_sccd))
             if post_response.status_code in [200, 201]:
-                print(f"success, Log added to work order {wo_id}")
+                print(f"success, log added to work order {wo_id}")
                 return {"success": f"Log added to work order {wo_id}"}
             else:
                 return {"error": f"Failed to add log to work order {wo_id}"}
@@ -171,6 +172,7 @@ class SCCD:
 
             post_response = self.session.post(href_post, json=jedi, headers=self.myheaders, auth=(self.user_sccd, self.pass_sccd))
             if post_response.status_code in [200, 201]:
+                print(f"success, {len(cids)} CIs added to {wo_id}")
                 return {"success": f"CIs added to work order/ task {wo_id}"}
             else:
                 return {"error": f"Failed to add CIs to work order/ task {wo_id}"}
