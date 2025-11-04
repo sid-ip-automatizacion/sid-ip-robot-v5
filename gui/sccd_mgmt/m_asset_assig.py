@@ -3,7 +3,8 @@ from tkinter import ttk
 import tkinter as tk
 
 from ..components.utils import load_excel, error_window
-from core.sccd.sccd_connector import SCCD
+from core import SCCD_WO as SCCD
+
 
 
 def main_function(root_win, sccd_owner, sccd_user, sccd_pass):
