@@ -164,6 +164,7 @@ class UserEnvironment:
         3. Meraki SW ATP
         """
         self.clear_work_area()  # Limpia el area de trabajo
+        self.__root.geometry("250x400")
         self.btn_sccd_m = ttk.Button(master=self.get_work_area(), text="SCCD WO Management", command=self.run_states)
         self.btn_aps = ttk.Button(master=self.get_work_area(), text="AP Management", command=self.run_aps)
         self.btn_sw_atp = ttk.Button(master=self.get_work_area(), text="Meraki SW ATP", command=self.run_atp_sw)
@@ -226,7 +227,7 @@ class UserEnvironment:
         Muestra la ventana Acerca de"
         """
         about_win = tkinter.Toplevel()
-        about_text = tkinter.Label(about_win, text='version: 5.2.3'
+        about_text = tkinter.Label(about_win, text='version: 5.2.4'
                                                    '\nSID-IP release'
                                                   '\n\nDesarrollado por SID-IP Team, Liberty Networks'
                                                   '\nEquipo de desarrollo:'
