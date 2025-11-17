@@ -181,7 +181,7 @@ class SCCD:
 
 
 def main(): 
-    owner = "ouwe"  # user
+    owner = "ouwer"  # user
     user_sccd = "user_sccd"  # SCCD user
     pass_sccd = "pass_sccd"  # SCCD password
 

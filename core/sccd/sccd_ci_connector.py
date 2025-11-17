@@ -120,7 +120,42 @@ class SCCD_CI:
         except Exception as e:
             return {"error": str(e)}
 
+
+    def put_ci(self,cid,cilocation,classstructureid,pluspcustomer,ccipersongroup,status="OPERATING"):
+        
+        base = self.url_sccd + "oslc/os/CCCI"
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "properties": "*"  #to return usefull atributes
+        }
+        payload = {"cinum": cid,
+                "assetnum": cid,
+                "ciname": cid,
+                "cilocation": cilocation,
+                "status": status,
+                "classstructureid": str(classstructureid),
+                "pluspcustomer": pluspcustomer,
+                "ccipersongroup": ccipersongroup,}
+        print(payload)
+        try:
+            r = self.session.post(base, 
+                                  params={"lean": "1"}, 
+                                  json=payload, 
+                                  headers=headers,
+                                  auth=(self.user_sccd, self.pass_sccd))
+            r.raise_for_status()
+            #href = r.headers.get("Location") or r.json()["member"][0]["href"]
+            print(f"{cid} configuration item created")
+        except Exception as e:
+            print(str(e))
+            print("Wrong information or CID already created")
+            return "error"
+            
+
+
+
+
 if __name__ == "__main__":
-    sccd_ci = SCCD_CI("user", "pass")
-    ap_models = sccd_ci.get_ap_models()
-    pprint(ap_models)
+    sccd_ci = SCCD_CI("username", "password")
+    sccd_ci.put_ci("2098740.CO","UNI003-56-L16","30019","UNI003-56","CNCSCCOL")

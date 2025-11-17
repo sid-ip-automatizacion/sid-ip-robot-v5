@@ -45,9 +45,9 @@ def save_excel(datos):
 
 def load_excel():
     """
-    Abre un archivo Excel y devuelve un array de diccionarios.
-    • La primera fila se interpreta como cabeceras (keys).
-    • Cada fila siguiente se convierte en un diccionario dentro de la lista.
+    Abre un archivo Excel y devuelve una lista de diccionarios.
+    - La primera fila se interpreta como cabeceras (keys).
+    - Las keys se normalizan a minúscula.
     """
     file_path = askopenfilename(
         filetypes=[("Excel files", "*.xlsx *.xls"), ("All files", "*.*")],
@@ -58,9 +58,8 @@ def load_excel():
         print("Lectura cancelada.")
         return []
 
-    # Leer el Excel (pandas reconoce automáticamente las cabeceras).
     df = pd.read_excel(file_path)
+    # Normaliza cabeceras: a string, sin espacios extremos y minúscula
+    df.columns = [str(c).strip().lower() for c in df.columns]
 
-    # Convertir a lista de diccionarios.
-    records = df.to_dict(orient="records")
-    return records
+    return df.to_dict(orient="records")

@@ -12,7 +12,8 @@ from .components import EnvHandler
 from . import ap_management_ui as ap_mgmt
 from . import sw_meraki_atp_ui as sw_m_atp
 from .sccd_mgmt.sccd_manager import run_sccd_manager
-from .sccd_mgmt.m_asset_assig import main_function as maa_function
+from .sccd_mgmt.m_asset_assig import main_function as maa_function 
+from .sccd_mgmt.back_office_mgmt import main_function as bo_function #back office management function
 
 class UserEnvironment:
     """
@@ -155,6 +156,16 @@ class UserEnvironment:
                   self.env.get_owner_sccd(),
                   self.env.get_user_sccd(),
                   self.env.get_pass_sccd())  # Ejecuta la venta  de ATP switches en el ambiente usuario
+    
+    def run_bo_mgmt(self):
+        """
+        Carga la ventana de Back Office Management
+        """
+        self.clear_work_area()  # Limpia el area de trabajo
+        bo_function(self.get_work_area(),
+                    self.env.get_user_sccd(),
+                    self.env.get_pass_sccd(),
+                    geo_callback=self.geometry)
 
     def initial_work_area(self):
         """
@@ -168,11 +179,13 @@ class UserEnvironment:
         self.btn_sccd_m = ttk.Button(master=self.get_work_area(), text="SCCD WO Management", command=self.run_states)
         self.btn_aps = ttk.Button(master=self.get_work_area(), text="AP Management", command=self.run_aps)
         self.btn_sw_atp = ttk.Button(master=self.get_work_area(), text="Meraki SW ATP", command=self.run_atp_sw)
-        self.btn_sccd_maa = ttk.Button(master=self.get_work_area(), text="SCCD Multi-Asset assignment", command=self.run_multi_asset_assignment)
+        self.btn_sccd_maa = ttk.Button(master=self.get_work_area(), text="SCCD Multi-Asset Assignment", command=self.run_multi_asset_assignment)
+        self.btn_bo_m = ttk.Button(master=self.get_work_area(), text="Back Office Management", command=self.run_bo_mgmt)
         self.btn_sccd_m.pack(side="top", padx=12, pady=12)
         self.btn_aps.pack(side="top", padx=12, pady=12)
         self.btn_sw_atp.pack(side="top", padx=12, pady=12)
         self.btn_sccd_maa.pack(side="top", padx=12, pady=12)
+        self.btn_bo_m.pack(side="top", padx=12, pady=12)
 
         if self.child_ref_sccd_m:
             self.btn_sccd_m.config(state="disabled")  # Deshabilita el boton si la ventana hija sigue abierta
@@ -227,7 +240,7 @@ class UserEnvironment:
         Muestra la ventana Acerca de"
         """
         about_win = tkinter.Toplevel()
-        about_text = tkinter.Label(about_win, text='version: 5.2.4'
+        about_text = tkinter.Label(about_win, text='version: 5.3.2'
                                                    '\nSID-IP release'
                                                   '\n\nDesarrollado por SID-IP Team, Liberty Networks'
                                                   '\nEquipo de desarrollo:'

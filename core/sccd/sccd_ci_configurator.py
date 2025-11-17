@@ -24,6 +24,7 @@ class SCCD_CI_Configurator:
         :param items: List of model names
         :return: List of tuples (original_model_name, normalized_model_name)
         """
+
         # Compile regex patterns for removal of unwanted substrings
         patterns = [re.compile(p, re.IGNORECASE) for p in (r'FortiAP', r'HW', r'Zone\s*Flex')]
 
@@ -168,8 +169,17 @@ class SCCD_CI_Configurator:
             print(f"SCCD CI updated for AP: {ap_data.get('name')}, Result: {result}")
         return results
 
-
+    def put_multiples_ci(self, cids:List[dict]):
+        print(cids)
+        for cid in cids:
+            self.sccd_ci.put_ci(cid.get("assetnum"),
+                                cid.get("location"),
+                                cid.get("classstructureid"),
+                                cid.get("pluspcustomer"),
+                                cid.get("ccipersongroup"))
+        return "success"
     
+
 
 if __name__ == "__main__":
     sccd_ci = SCCD_CI_Configurator("username", "password")
@@ -184,14 +194,16 @@ if __name__ == "__main__":
         "status": "up-to-date",
         "current_clients": "10",
         "address": "calle 100 #24"}]
-
-    post_r =sccd_ci.update_multiple_aps_ci(ap_info,
+    """
+        post_r =sccd_ci.update_multiple_aps_ci(ap_info,
                         vendor="Ruckus",
                         controller="OTT Controller",
                         control_vlan="20",
                         dealcode="12345678",
                         managed_by="CW",
                         owner_by="CUSTOMER")
+    """
+
     
 
     #print(sccd_ci.models_tuples)
