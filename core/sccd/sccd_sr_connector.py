@@ -36,7 +36,6 @@ class SCCD_SR:
             if response.status_code == 200 or response.status_code == 201:
                 sr_data_dic = response.json()
                 href = sr_data_dic['member'][0]['href']+'?lean=1'
-                print(href)
                 return href
             else:
                 return f"Error, Failed to retrieve Service Request data, error code: {response.status_code}"

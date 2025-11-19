@@ -15,10 +15,12 @@ def main_function(root_win, sccd_user, sccd_pass, geo_callback=None):
     sr = tk.StringVar()
 
     def create_conf_items():
+        print("Please, select an Excel file (.xlsx) with configuration items data.")
         try:
             data = load_excel()
             if not data:
                 return  # Si no se carga ningún archivo, salir de la función
+            print("Creating configuration items...")
             sccd_connector = SCCD_CI_CONF(sccd_user, sccd_pass)
             result = sccd_connector.put_multiples_ci(data)
 
@@ -53,22 +55,22 @@ def main_function(root_win, sccd_user, sccd_pass, geo_callback=None):
             error_window(f"Error: {e}")
 
     def assign_assets_button_function(sr):
+        print("Please, select an Excel file (.xlsx) with assets to assign to the SR.")
         try:
             if not sr:
-                error_window("Debe ingresar un SR")
+                error_window("Please, enter a valid SR number.")
                 return
+            print("Assigning assets to SR...")
             data = load_excel()    
             if not data:
-                return  # Si no se carga ningún archivo, salir de la función
+                return  # If no file is loaded, exit the function
             sccd_connector = SCCD_SR(sccd_user, sccd_pass)
             sccd_connector.add_cis_to_sr(sr, data)
-            print("All configuration items created")
+            print("All configuration items assigned to SR.")
         except Exception as e:
             error_window(f"Error: {e}")
 
 
-
-   
     ttk.Button(root_win, text='Configuration Items Creator', command=lambda: create_conf_items()).pack(padx=15,pady=15) #Buttom to create configuration items from excel file .xlsx
     ttk.Label(root_win, text="SR: ").pack(side = 'left', padx=5, pady=15)
     ttk.Entry(root_win, textvariable=sr).pack(side = 'left', padx=5,pady=15) # SR Entry

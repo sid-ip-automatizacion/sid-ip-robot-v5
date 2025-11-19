@@ -170,7 +170,6 @@ class SCCD_CI_Configurator:
         return results
 
     def put_multiples_ci(self, cids:List[dict]):
-        print(cids)
         for cid in cids:
             self.sccd_ci.put_ci(cid.get("assetnum"),
                                 cid.get("location"),

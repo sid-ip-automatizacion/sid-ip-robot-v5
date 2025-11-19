@@ -137,7 +137,6 @@ class SCCD_CI:
                 "classstructureid": str(classstructureid),
                 "pluspcustomer": pluspcustomer,
                 "ccipersongroup": ccipersongroup,}
-        print(payload)
         try:
             r = self.session.post(base, 
                                   params={"lean": "1"}, 
