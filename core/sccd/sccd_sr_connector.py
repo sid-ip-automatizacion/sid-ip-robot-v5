@@ -50,7 +50,6 @@ class SCCD_SR:
             jedi = {
                 "multiassetlocci": ci_list
             }
-            print(jedi)
             post_response = self.session.post(href_post, json=jedi, headers=self.myheaders, auth=(self.user_sccd, self.pass_sccd))
             if post_response.status_code in [200, 201]:
                 print(f"success, {len(cids)} CIs added to {sr}")

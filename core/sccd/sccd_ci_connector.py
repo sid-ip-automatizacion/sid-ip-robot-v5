@@ -120,8 +120,9 @@ class SCCD_CI:
         except Exception as e:
             return {"error": str(e)}
 
+    
 
-    def put_ci(self,cid,cilocation,classstructureid,pluspcustomer,ccipersongroup,status="OPERATING"):
+    def put_ci(self,cid,cilocation,classstructureid,pluspcustomer,ccipersongroup,status="Operating"):
         
         base = self.url_sccd + "oslc/os/CCCI"
         headers = {
@@ -133,7 +134,7 @@ class SCCD_CI:
                 "assetnum": cid,
                 "ciname": cid,
                 "cilocation": cilocation,
-                "status": status,
+                "status_description": status,
                 "classstructureid": str(classstructureid),
                 "pluspcustomer": pluspcustomer,
                 "ccipersongroup": ccipersongroup,}
@@ -152,9 +153,15 @@ class SCCD_CI:
             return "error"
             
 
+    def change_ci_status(self, ci,new_status):
+        """Change the status of the configuration item."""
+        #Not working due to security restrictions in SCCD server.
+        return
+
 
 
 
 if __name__ == "__main__":
     sccd_ci = SCCD_CI("username", "password")
-    sccd_ci.put_ci("2098740.CO","UNI003-56-L16","30019","UNI003-56","CNCSCCOL")
+    #sccd_ci.put_ci("2098818.CO","UNI003-56-L16","30019","UNI003-56","CNCSCCOL")
+    sccd_ci.change_ci_status("2098818.CO","OPERATING")
