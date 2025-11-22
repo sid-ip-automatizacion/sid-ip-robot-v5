@@ -1,30 +1,48 @@
+"""
+Initialization and authentication module for the SID-IP robot.
 
+This module defines the AuthenticatedUser class which handles the user
+authentication process via a Tkinter graphical interface and secure
+password verification.
+"""
 
-import dotenv
-import os
 from pathlib import Path
-from passlib.context import CryptContext
-
+import os
 import tkinter
 from tkinter import ttk
 
-class AuthenticatedUser:
-    def __init__(self):
-        self.passw =""  # Para verificar el password de la aplicacion, no el de SCCD
-        self.authenticated = False  # Indica si el usuario se autentico correctamente en la aplicacion
-        self.attempts = 0  # Cantidad de intentos de autenticación en la aplicacion
-        self.__hash_context = CryptContext(schemes=["pbkdf2_sha256"], default="pbkdf2_sha256",
-                                                     pbkdf2_sha256__default_rounds=5000)  # Usado para hash del password
-        self.__env_path = Path('.') / '.env'  # Ruta a las variables de ambiente
-        dotenv.load_dotenv(dotenv_path=self.__env_path)
-        self.icon_path = Path(__file__).resolve().parent / 'resources' / 'icon.ico' #Ruta absoluta al archivo icon.ico
+from passlib.context import CryptContext
+import dotenv
 
+
+class AuthenticatedUser:
+    """
+    Manages user authentication for the application.
+
+    This class handles the graphical authentication window, validates passwords
+    against a hashed secret, and tracks authentication state.
+    """
+
+    def __init__(self):
+        self.passw = ""  # Stores the application password, not the SCCD password
+        self.authenticated = False
+        self.attempts = 0  # Number of authentication attempts in the application
+        self.__hash_context = CryptContext(
+            schemes=["pbkdf2_sha256"],
+            default="pbkdf2_sha256",
+            pbkdf2_sha256__default_rounds=5000)  # Used for password hashing
+        self.__env_path = Path('.') / '.env'
+        dotenv.load_dotenv(dotenv_path=self.__env_path)
+        self.icon_path = Path(__file__).resolve().parent / \
+            'resources' / 'icon.ico'
 
     def auth_valid(self, passw):
         """
-        Valida si una contraseña presentado es correcto
-        :param passw: Contraseña a validar
-        :return: Verdadero si la contraseña es correcta
+        Validates if a provided password is correct.
+        Args:
+            passw (str): The password to validate.
+        Returns:
+            bool: True if the password is correct, False otherwise.
         """
         hash_pass = os.environ["SECRET_KEY_HASH"]
         if self.__hash_context.verify(passw, hash_pass):
@@ -34,7 +52,9 @@ class AuthenticatedUser:
 
     def request_authent(self):
         """
-        Solicita la autenticacón del usuario en una ventana grafica
+        Requests user authentication via a graphical window.
+
+        Launches a Tkinter window prompting the user for a password.
         """
 
         def try_aut():
