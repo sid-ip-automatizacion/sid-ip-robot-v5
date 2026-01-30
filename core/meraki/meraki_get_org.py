@@ -1,52 +1,83 @@
+"""
+Meraki Organization Retrieval Module.
+
+This module provides functionality to retrieve all organizations accessible
+with a given Meraki API key.
+"""
+
 import meraki
 
 
 class Org:
     """
-    Get the all ID organizations  from the Meraki API.
+    Meraki Organization retrieval class.
+
+    Provides methods to fetch all organizations accessible with the provided API key.
+
+    Attributes:
+        meraki_api (str): Meraki Dashboard API key
     """
 
-    def __init__(self, meraki_api):
+    def __init__(self, meraki_api: str):
+        """
+        Initialize the Org instance.
+
+        Args:
+            meraki_api: Meraki Dashboard API key
+        """
         self.meraki_api = meraki_api
 
-    def get(self):
-        # Se obtiene la información de todas las organizaciones
-        #  
-        responseOK = False
+    def get(self) -> list:
+        """
+        Retrieve all organizations accessible with the API key.
+
+        Implements retry logic (up to 10 attempts) to handle intermittent
+        Meraki API errors.
+
+        Returns:
+            list: List of tuples (organization_name, organization_id),
+                  or 'No authorization' string on persistent failure
+        """
+        response_ok = False
         tries_counter = 0
         array_orgs = None
         orgs = []
 
         dashboard = meraki.DashboardAPI(self.meraki_api, output_log=False, print_console=False)
-        while responseOK == False :
-            """
-            La solicitud de la información de las organización salta error de forma aleatoria (cosas de Meraki)
-            Este While maneja las excepciones y vuelve a intentarlo hasta 10 veces
-            """
+
+        while response_ok == False:
+            # The organization request may fail randomly (Meraki API quirk)
+            # This while loop handles exceptions and retries up to 10 times
             try:
                 array_orgs = dashboard.organizations.getOrganizations()
                 print(":::RESPONSE:::")
-                #print(response)
-                responseOK = True
+                response_ok = True
 
                 for count, organization in enumerate(array_orgs):
                     clientinfo = (organization['name'], organization['id'])
                     print(clientinfo)
                     orgs.append(clientinfo)
                 return orgs
-            except :
-                print("hubo un error")
-                tries_counter + 1
+            except Exception:
+                print("Error occurred, retrying...")
+                tries_counter += 1
                 pass
+
             if tries_counter > 10:
-                responseOK = True
+                response_ok = True
                 print("No authorization")
                 return 'No authorization'
-            
-def get_org(meraki_api):
+
+
+def get_org(meraki_api: str) -> list:
     """
-    Get the all ID organizations  from the Meraki API.
+    Factory function to retrieve all organizations from Meraki API.
+
+    Args:
+        meraki_api: Meraki Dashboard API key
+
+    Returns:
+        list: List of tuples (organization_name, organization_id)
     """
     org = Org(meraki_api)
     return org.get()
-

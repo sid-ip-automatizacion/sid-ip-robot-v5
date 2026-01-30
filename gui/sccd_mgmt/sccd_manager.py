@@ -1,3 +1,11 @@
+"""
+SCCD Manager Module.
+
+This module provides the AppStates class which is the main SCCD Work Order
+management interface. It integrates the work order table, timers, and provides
+functionality for updating states, adding logs, and exporting data.
+"""
+
 from pathlib import Path
 import tkinter as tk
 from tkinter import ttk, messagebox
@@ -15,22 +23,40 @@ from .mw_email_gen import generate_MW_email
 from .data import log_options, log_options_spanish, default_mw_text_1, default_mw_text_2
 
 
-
 # ------------------- App wiring -------------------
 
 class AppStates(tk.Toplevel):
     """
-    Main application wiring:
-    - Integrates Table (view) + WorkOrderTimers (controller for countdowns)
-    - Provides Update State popup with state selection and optional timer minutes (0 = no timer)
-    - Adds 'Add log' popup to update last_update title/note asynchronously
-    - Uses ThreadPoolExecutor for non-blocking "server" updates
+    Main SCCD Work Order Management application.
+
+    Integrates the work order Table view with WorkOrderTimers controller
+    for countdown functionality. Provides popups for updating work order
+    states and adding logs. Uses ThreadPoolExecutor for non-blocking
+    server updates.
+
+    Attributes:
+        table (Table): Work order data table widget
+        executor (ThreadPoolExecutor): Thread pool for async server calls
+        timers (WorkOrderTimers): Timer controller for countdown management
+        sccd (SCCD_WO): SCCD API client for server operations
+        on_close: Callback function invoked when window closes
     """
-    def __init__(self, owner, user_sccd, pass_sccd, on_close=None):
+
+    def __init__(self, owner: str, user_sccd: str, pass_sccd: str, on_close=None):
+        """
+        Initialize the SCCD Work Order Manager window.
+
+        Args:
+            owner: Work order owner/assignee username
+            user_sccd: SCCD login username
+            pass_sccd: SCCD login password
+            on_close: Optional callback for window close event
+        """
         super().__init__()
         self.title("SCCD Work Orders Manager")
 
-        self.icon_path = Path(__file__).resolve().parent.parent.parent / 'resources' / 'icon.ico' #Ruta absoluta al archivo icon.ico
+        # Absolute path to icon.ico file
+        self.icon_path = Path(__file__).resolve().parent.parent.parent / 'resources' / 'icon.ico'
         self.iconbitmap(self.icon_path)
 
         self.columns = ["wo_id", "description", "state", "last_update", "cid_count", "project_info", "pm", "time_min"]
@@ -151,7 +177,7 @@ class AppStates(tk.Toplevel):
         self.table.tree.tag_configure("found", background="#A1A15E")
     
     def reset_highlights(self):
-        # Remover selección y restablecer el estilo zebra
+        """Remove selection and restore zebra striping style."""
         self.table.tree.selection_remove(self.table.tree.selection())
         for index, iid in enumerate(self.table.tree.get_children("")):
             tag = self.table.tag_even if index % 2 == 0 else self.table.tag_odd
@@ -379,16 +405,30 @@ class AppStates(tk.Toplevel):
             pass
         self.destroy()
 
-def run_sccd_manager(owner, user_sccd, pass_sccd, on_close=None):
+def run_sccd_manager(owner: str, user_sccd: str, pass_sccd: str, on_close=None) -> None:
+    """
+    Entry point for the SCCD Manager module.
+
+    Creates and runs the SCCD Work Order Manager window.
+
+    Args:
+        owner: Work order owner/assignee username
+        user_sccd: SCCD login username
+        pass_sccd: SCCD login password
+        on_close: Optional callback for window close event
+    """
     app = AppStates(owner, user_sccd, pass_sccd, on_close=on_close)
     app.mainloop()
 
+
 def main():
-    owner = " "  # user
-    user_sccd = " "  # SCCD user
+    """Standalone entry point for testing the SCCD Manager."""
+    owner = " "  # Work order owner
+    user_sccd = " "  # SCCD username
     pass_sccd = " "  # SCCD password
     app = AppStates(owner, user_sccd, pass_sccd)
     app.mainloop()
+
 
 if __name__ == "__main__":
     main()

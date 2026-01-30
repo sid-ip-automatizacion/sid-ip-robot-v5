@@ -1,3 +1,11 @@
+"""
+SCCD Manager Data Constants Module.
+
+This module contains predefined log options and default text templates
+used in the SCCD Work Order Manager interface for standardized logging
+and maintenance window documentation.
+"""
+
 log_options = ('---',
     'P00. PROJECT INITIAL REVIEW',
     'P01. INTERNAL KICK OFF',

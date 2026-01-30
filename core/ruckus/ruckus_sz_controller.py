@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 """
-Requisitos:
+Ruckus SmartZone Controller API Client.
+
+Requirements:
     pip install requests urllib3
-Nota: Se deshabilita temporalmente la verificación TLS (verify=False).
-      No recomendado para producción.
+
+Note:
+    TLS verification is temporarily disabled (verify=False).
+    Not recommended for production environments.
 """
 
 import requests
@@ -16,14 +20,45 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 class SmartZoneAPI:
-    def __init__(self, controller_url, username, password):
+    """
+    Ruckus SmartZone API client.
+
+    Provides methods to authenticate, query domains, retrieve and configure
+    Access Points from a SmartZone controller.
+
+    Attributes:
+        base_url (str): Base URL for the SmartZone API
+        username (str): Authentication username
+        password (str): Authentication password
+        session (requests.Session): HTTP session with authentication headers
+        token (str): Authentication token
+    """
+
+    def __init__(self, controller_url: str, username: str, password: str):
+        """
+        Initialize the SmartZoneAPI client and authenticate.
+
+        Args:
+            controller_url: IP address or hostname of the SmartZone controller
+            username: Login username
+            password: Login password
+        """
         self.base_url = f'https://{controller_url}/wsg/api/public/v9_1'
         self.username = username
         self.password = password
         self.session = requests.Session()
         self.token = self.login()
 
-    def login(self):
+    def login(self) -> str:
+        """
+        Authenticate with the SmartZone controller.
+
+        Returns:
+            str: Authentication token
+
+        Raises:
+            requests.HTTPError: If authentication fails
+        """
         url = f'{self.base_url}/session'
         payload = {
             "username": self.username,
@@ -34,25 +69,41 @@ class SmartZoneAPI:
         token = response.json().get('token')
         self.session.headers.update({'Authorization': f'Session {token}'})
         return token
-    # ------- Consulta de Domains ---------
 
-    def get_domains(self):
+    # ---------- Domain Queries ----------
+
+    def get_domains(self) -> List[tuple]:
+        """
+        Retrieve all domains from the SmartZone controller.
+
+        Returns:
+            list: List of tuples (domain_name, domain_id)
+        """
         url = f'{self.base_url}/domains'
         response = self.session.get(url, verify=False)
         response.raise_for_status()
         domains_data = response.json().get('list', [])
         domains_list_dic = []
         for domain in domains_data:
-            domains_list_dic.append((domain.get('name'),domain.get('id')))
+            domains_list_dic.append((domain.get('name'), domain.get('id')))
 
         return domains_list_dic
 
-    # ---------- Consulta de APs ----------
+    # ---------- AP Queries ----------
+
     def query_aps_by_domain(self, domain_id: str,
                             page_size: int = 100) -> List[Dict]:
         """
-        Devuelve la lista completa de APs dentro de un dominio
-        usando POST /query/ap y paginación.
+        Retrieve the complete list of APs within a domain using pagination.
+
+        Uses POST /query/ap endpoint with pagination support.
+
+        Args:
+            domain_id: Domain ID to filter APs. Use '0' for all domains.
+            page_size: Number of APs to retrieve per page (default: 100)
+
+        Returns:
+            list: List of dictionaries containing AP information
         """
         print("Domain:", domain_id)
         endpoint = f"{self.base_url}/query/ap"
@@ -66,7 +117,7 @@ class SmartZoneAPI:
                     "page": page,
                     "limit": page_size
                 }
-            else:   
+            else:
                 payload = {
                     "filters": [
                         {"type": "DOMAIN", "value": domain_id, "operator": "eq"}
@@ -81,16 +132,17 @@ class SmartZoneAPI:
             data = resp.json()
             aps.extend(data.get("list", []))
 
-            # ¿Hemos recibido todos los registros?
+            # Check if we have received all records
             total = data.get("totalCount", len(aps))
             if len(aps) >= total:
                 break
             page += 1
-        # ---------- Formateo de datos ----------
-        """Extrae y normaliza los campos solicitados de la respuesta."""
+
+        # ---------- Data Formatting ----------
+        # Extract and normalize the requested fields from the response
         for ap in aps:
-            aps_list_dic.append(
-                {"name": ap.get("deviceName"),
+            aps_list_dic.append({
+                "name": ap.get("deviceName"),
                 "model": ap.get("model"),
                 "description": ap.get("description"),
                 "site": ap.get("apGroupName"),
@@ -99,20 +151,38 @@ class SmartZoneAPI:
                 "serial": ap.get("serial"),
                 "status": ap.get("configurationStatus"),
                 "current_clients": ap.get("numClients"),
-                "address": ap.get("location")}
-                )
+                "address": ap.get("location")
+            })
         return aps_list_dic
-    # ---------- Cambia configuración de un AP dada una MAC ----------
-    def change_config_1ap(self, ap_mac: str, config: Dict):
 
+    # ---------- AP Configuration ----------
+
+    def change_config_1ap(self, ap_mac: str, config: Dict) -> None:
+        """
+        Update the configuration of a single AP by its MAC address.
+
+        Args:
+            ap_mac: MAC address of the AP to configure
+            config: Dictionary containing configuration parameters:
+                - name: New device name
+                - description: New description
+                - location: New physical location/address
+
+        Raises:
+            requests.HTTPError: If the API request fails
+        """
         endpoint = f"{self.base_url}/aps/{ap_mac}"
         response = self.session.patch(endpoint, json=config, verify=False)
         response.raise_for_status()
-        print(f"Configuración del AP {ap_mac} actualizada correctamente.")
-    
-    def config_aps(self, ap_list: List[Dict]):
+        print(f"AP {ap_mac} configuration updated successfully.")
+
+    def config_aps(self, ap_list: List[Dict]) -> None:
         """
-        Configura los APs en la lista proporcionada.
+        Configure multiple APs from a provided list.
+
+        Args:
+            ap_list: List of dictionaries containing AP configuration data.
+                Each dict should have 'mac', 'name', 'description', 'address' keys.
         """
         for ap in ap_list:
             mac = ap.get("mac")
@@ -122,27 +192,33 @@ class SmartZoneAPI:
                 "location": ap.get("address")
             }
             self.change_config_1ap(mac, config)
-            sleep(0.5)  # Espera 0.5 segundos entre configuraciones para evitar sobrecarga
+            # Wait 0.5 seconds between configurations to avoid API rate limiting
+            sleep(0.5)
         self.session.close()
 
-
-    def close(self):
+    def close(self) -> None:
         """
-        Cierra la sesión y elimina el token de autenticación.
+        Close the session and invalidate the authentication token.
         """
         self.session.close()
         self.token = None
-# ------------------ Ejecución directa ------------------ #
+
+
+# ------------------ Direct Execution ------------------ #
 
 
 def main():
-    
-    controller_ip = " "  # IP del SmartZone
-    username = "  "  # Usuario por defecto
-    password = " "  # Contraseña por defecto
-    # domain_id = "7eee9134-2ba8-4441-80ea-13b47611261c"  # ID del dominio por defecto
+    """
+    Example usage of the SmartZoneAPI class.
+
+    Replace controller_ip, username, password, and mac with actual values
+    before running.
+    """
+    controller_ip = " "  # SmartZone IP address
+    username = " "  # Login username
+    password = " "  # Login password
     api = SmartZoneAPI(controller_ip, username, password)
-    mac = " "
+    mac = " "  # AP MAC address
     config = {
         "name": " ",
         "description": " ",
@@ -151,27 +227,6 @@ def main():
 
     api.change_config_1ap(mac, config)
 
-    """
-    dic_domain = api.get_domains()
-
-    pprint(dic_domain) 
-    
-    if dic_domain == [] :
-        domain_id = '0'
-    else:
-        domain_id = input("Digite ID de Dominio: ")
-    
-    raw_aps = api.query_aps_by_domain(domain_id)
-
-    print("\nConsultando APs…")
-    print(f"Total de APs encontrados: {len(raw_aps)}\n")
-    pprint(raw_aps)
-
-   """
-    
-
 
 if __name__ == "__main__":
     main()
-
-

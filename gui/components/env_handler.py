@@ -1,57 +1,99 @@
+"""
+Environment Handler Module.
+
+This module provides the EnvHandler class for managing application configuration,
+environment variables, and secure credential storage. It handles SCCD and Meraki
+credentials using a combination of .env files and the OS keyring.
+"""
+
 import os
 import sys
 import dotenv
 from pathlib import Path
 from passlib.context import CryptContext
 
-import tkinter    
+import tkinter
 from tkinter import ttk
 import keyring
 
-#Esta clase maneja las variables de ambiente y la configuracion de la aplicacion
-# de la aplicacion. Se encarga de guardar las credenciales de SCCD y Meraki, y de cambiar el password de acceso a la aplicacion.
 
 class EnvHandler:
+    """
+    Environment and credential manager for the application.
+
+    Handles saving and retrieving SCCD and Meraki credentials, and manages
+    the application access password. Uses:
+    - .env file for non-sensitive configuration (usernames)
+    - OS keyring for secure password/API key storage
+    - passlib for password hashing
+
+    Attributes:
+        master: Optional Tkinter master widget
+        icon_path (Path): Path to the application icon
+        BASE_DIR (Path): Base directory for the application
+    """
+
     def __init__(self, master=None):
+        """
+        Initialize the EnvHandler.
+
+        Args:
+            master: Optional Tkinter master widget
+        """
         self.master = master
-        self.__hash_context = CryptContext(schemes=["pbkdf2_sha256"], default="pbkdf2_sha256",
-                                                     pbkdf2_sha256__default_rounds=5000)  # Usado para hash del password
-        #self.__env_path = Path(__file__).resolve().parent.parent.parent / '.env'  # Ruta absoluta al archivo .env
-        
-        self.icon_path = Path(__file__).resolve().parent.parent.parent / 'resources' / 'icon.ico' #Ruta absoluta al archivo icon.ico
+        # Hash context for password hashing using PBKDF2-SHA256
+        self.__hash_context = CryptContext(
+            schemes=["pbkdf2_sha256"],
+            default="pbkdf2_sha256",
+            pbkdf2_sha256__default_rounds=5000
+        )
+
+        # Absolute path to icon.ico file
+        self.icon_path = Path(__file__).resolve().parent.parent.parent / 'resources' / 'icon.ico'
 
         self.BASE_DIR: Path = self.app_base_dir()
         self.__env_path: Path = self.BASE_DIR / ".env"
         dotenv.load_dotenv(dotenv_path=self.__env_path)
 
-
     def app_base_dir(self) -> Path:
         """
-        Carpeta base de la aplicación:
-        - En .exe (PyInstaller): carpeta del ejecutable.
-        - En dev: raíz del proyecto (../.. desde este archivo).
+        Get the application base directory.
+
+        Returns:
+            Path: Base directory path
+                - For .exe (PyInstaller): folder containing the executable
+                - For dev: project root (../../ from this file)
         """
         if getattr(sys, "frozen", False):
             return Path(sys.executable).parent
-        # Este archivo está en gui/components/, sube dos niveles a la raíz del repo
+        # This file is in gui/components/, go up two levels to repo root
         return Path(__file__).resolve().parents[2]
-
-
 
     def resource_path(self, relative: str) -> str:
         """
-        Devuelve una ruta a recursos empacados o locales (útil para iconos, etc.)
+        Get the path to bundled or local resources.
+
+        Useful for accessing icons and other assets in both development
+        and PyInstaller-bundled environments.
+
+        Args:
+            relative: Relative path to the resource
+
+        Returns:
+            str: Absolute path to the resource
         """
         base = getattr(sys, "_MEIPASS", str(self.BASE_DIR))
         return str((Path(base) / relative).resolve())
 
-
-
-    def create_password(self):
+    def create_password(self) -> None:
         """
-        Cambia el password de acceso a la aplicacion
+        Open a dialog to change the application access password.
+
+        Creates a Toplevel window prompting for new password with confirmation.
+        The password is hashed using PBKDF2-SHA256 and stored in .env file.
         """
         print("Change password")
+
         def set_newpass():
             new_password = ent_newpass.get()
             if new_password == ent_confirm.get():
@@ -79,21 +121,29 @@ class EnvHandler:
         lbl_state.grid(row=3, column=0)
         newpass_win.mainloop()
 
-
-
-    def set_sccd_credentials(self):
+    def set_sccd_credentials(self) -> None:
         """
-        Guarda las credenciales de SCCD
+        Open a dialog to configure SCCD credentials.
+
+        Creates a Toplevel window prompting for:
+        - Login username (stored in .env)
+        - Password (stored in OS keyring)
+        - Owner person (stored in .env)
         """
         def save_cred():
             user = ent_user.get()
             password = ent_pass.get()
             owner = ent_owner.get()
-            os.environ["OWNER_SCCD"] = owner  # Guarda el usuario OWNER como variable de ambiente
-            dotenv.set_key(self.__env_path, 'OWNER_SCCD', owner)  # Almacena usuario OWNER en archivo .env
-            os.environ["LOGIN_USER_SCCD"] = user  # Guarda el usuario de login como variable de ambiente
-            dotenv.set_key(self.__env_path, 'LOGIN_USER_SCCD', user)  # Almacena usuario de login en archivo .env
-            keyring.set_password("SCCD_KEY", user, password)  # Guarda el password en el banco de contraseñas del sistema operativo
+            # Save OWNER username as environment variable
+            os.environ["OWNER_SCCD"] = owner
+            # Store OWNER username in .env file
+            dotenv.set_key(self.__env_path, 'OWNER_SCCD', owner)
+            # Save login username as environment variable
+            os.environ["LOGIN_USER_SCCD"] = user
+            # Store login username in .env file
+            dotenv.set_key(self.__env_path, 'LOGIN_USER_SCCD', user)
+            # Save password in OS keyring
+            keyring.set_password("SCCD_KEY", user, password)
             sccd_cred_win.destroy()
 
         sccd_cred_win = tkinter.Toplevel()
@@ -114,15 +164,21 @@ class EnvHandler:
         btn_save.grid(row=3, column=0, pady=5)
         sccd_cred_win.mainloop()
 
-    def set_meraki_key(self):
+    def set_meraki_key(self) -> None:
         """
-        Guarda la API key de Meraki
+        Open a dialog to configure Meraki API credentials.
+
+        Creates a Toplevel window prompting for:
+        - Meraki username (stored in .env)
+        - API key (stored in OS keyring)
         """
         def save_cred():
             user_meraki = ent_user.get()
             meraki_key = ent_key.get()
-            dotenv.set_key(self.__env_path, 'LOGIN_USER_MERAKI', user_meraki)  # Almacena usuario de login en archivo .env
-            keyring.set_password("MERAKI_API_KEY", user_meraki, meraki_key)  # Guarda el password en el banco de contraseñas del sistema operativo
+            # Store login username in .env file
+            dotenv.set_key(self.__env_path, 'LOGIN_USER_MERAKI', user_meraki)
+            # Save API key in OS keyring
+            keyring.set_password("MERAKI_API_KEY", user_meraki, meraki_key)
             sccd_cred_win.destroy()
 
         sccd_cred_win = tkinter.Toplevel()
@@ -138,45 +194,56 @@ class EnvHandler:
         btn_save.grid(row=2, column=0, pady=5)
         sccd_cred_win.mainloop()
 
-    def get_user_sccd(self):
+    def get_user_sccd(self) -> str:
         """
-        Obtiene el usuario de SCCD desde las variables de entorno
-        :return: Usuario de SCCD
+        Get the SCCD login username from environment variables.
+
+        Returns:
+            str: SCCD login username
         """
         return os.environ["LOGIN_USER_SCCD"]
 
-    def get_user_meraki(self):
+    def get_user_meraki(self) -> str:
         """
-        Obtiene el usuario de meraki desde las variables de entorno
-        :return: Usuario de meraki
+        Get the Meraki username from environment variables.
+
+        Returns:
+            str: Meraki username
         """
         return os.environ["LOGIN_USER_MERAKI"]
 
-    def get_pass_sccd(self):
+    def get_pass_sccd(self) -> str:
         """
-        Obtiene la contraseña de SCCD desde el banco de contraseñas del sistema operativo
-        :return: Contraseña de SCCD
+        Get the SCCD password from the OS keyring.
+
+        Returns:
+            str: SCCD password
         """
         return keyring.get_password("SCCD_KEY", self.get_user_sccd())
 
-    def get_key_meraki(self):
+    def get_key_meraki(self) -> str:
         """
-        Obtiene la API key de Meraki desde el banco de contraseñas del sistema operativo
-        :return: API Key para meraki
+        Get the Meraki API key from the OS keyring.
+
+        Returns:
+            str: Meraki API key
         """
         return keyring.get_password("MERAKI_API_KEY", self.get_user_meraki())
 
-    def get_owner_sccd(self):
+    def get_owner_sccd(self) -> str:
         """
-        Obtiene el owner de SCCD desde las variables de entorno
-        :return: Owner de SCCD
+        Get the SCCD owner person from environment variables.
+
+        Returns:
+            str: SCCD owner username
         """
         return os.environ["OWNER_SCCD"]
 
-    def get_urlsccd(self):
+    def get_urlsccd(self) -> str:
         """
-        Obtiene la url de sccd
-        :return: URL para los request a SCCD
+        Get the SCCD base URL from environment variables.
+
+        Returns:
+            str: SCCD API base URL
         """
         return os.environ["SCCD_URL"]
-    

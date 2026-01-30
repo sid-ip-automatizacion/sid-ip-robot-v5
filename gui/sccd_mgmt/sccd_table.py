@@ -1,9 +1,18 @@
+"""
+SCCD Table Widget Module.
+
+This module provides the Table class, an enhanced ttk.Treeview widget
+for displaying and interacting with SCCD Work Order data. Features include
+sortable columns, double-click actions, zebra striping, and popup dialogs.
+"""
+
 import tkinter as tk
 from tkinter import ttk, messagebox
 import json
 
 from .utils import export_treeview_to_excel
 from core.sccd.sccd_loc_connector import SCCD_LOC
+
 
 class Table(ttk.Frame):
     """
@@ -424,8 +433,20 @@ class Table(ttk.Frame):
         return None
     
     # -------------------- Location Fetcher for CIDs --------------------
-    def _get_exact_location(self, headers : list, rows : list[tuple]) -> list:
-        # Add exact location address to each row based on location ID
+    def _get_exact_location(self, headers: list, rows: list[tuple]) -> tuple[list, list]:
+        """
+        Add exact location address to each row based on location ID.
+
+        Fetches location details from SCCD for each unique location and appends
+        the address to the row data.
+
+        Args:
+            headers: Original column headers
+            rows: List of row tuples
+
+        Returns:
+            tuple: (new_headers, new_rows) with address column added
+        """
         new_headers = headers + ["address"]
         new_rows = []
         locs =[]
