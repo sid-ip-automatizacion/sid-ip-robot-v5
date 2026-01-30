@@ -1,0 +1,30 @@
+# SID-IP Robot v5 Dependencies
+# Install with: pip install -r requierements.txt
+
+# HTTP requests
+requests
+
+# Environment variable management
+python-dotenv
+
+# Secure credential storage
+keyring
+
+# Password hashing
+passlib
+
+# Excel file handling
+openpyxl
+pandas
+
+# Meraki API SDK
+meraki
+
+# HTML template rendering
+jinja2
+
+# HTML parsing
+beautifulsoup4
+
+# Selenium for web automation (SCCD CI status)
+selenium

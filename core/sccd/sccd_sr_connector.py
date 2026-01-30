@@ -1,3 +1,7 @@
+
+"""SCCD_SR class to interact with SCCD Service Requests (SR) via REST API.
+ You need to provide SCCD credentials to initialize the class. """
+
 import requests
 from pprint import pprint
 

@@ -21,6 +21,11 @@ Desktop application developed in Python with Tkinter that provides tools for:
 
 ```bash
 pip install requests python-dotenv keyring passlib openpyxl meraki jinja2 beautifulsoup4
+pip install -r requierements.txt
+```
+or 
+```bash
+pip install -r requierements.txt
 ```
 
 ## Running
@@ -113,4 +118,4 @@ Developed by the SID-IP team at Liberty Networks:
 
 ## Version
 
-v5.4.1
+v5.4.2

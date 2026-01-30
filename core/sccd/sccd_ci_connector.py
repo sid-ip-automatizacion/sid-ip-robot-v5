@@ -1,3 +1,7 @@
+
+"""SCCD_CI class to interact with SCCD Configuration Items (CI) via REST API.
+ You need to provide SCCD credentials to initialize the class. """
+
 import requests
 from pprint import pprint
 
@@ -112,11 +116,10 @@ class SCCD_CI:
             patch_response = self.session.post(patch_url, json=data,
                                                 headers=self.patch_headers,
                                                 auth=(self.user_sccd, self.pass_sccd))
-            print(patch_response.status_code, patch_response.text)
             if patch_response.status_code in [200, 204]:
-                return f"success, CI updated to {data}"
+                return f"success, CI {self.conf_item_data.get('cinum')} updated"
             else:
-                return f"Error, Failed to update classstructureid, error code: {patch_response.status_code}"
+                return f"Error, Failed to update CI {self.conf_item_data.get('cinum')} with error code: {patch_response.status_code}"
         except Exception as e:
             return {"error": str(e)}
 

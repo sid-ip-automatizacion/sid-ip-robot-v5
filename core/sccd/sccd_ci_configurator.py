@@ -1,3 +1,8 @@
+"""
+SCCD_CI_Configurator class used to normalize data and interact with SCCD_CI in sccd_ci_connector.py
+
+"""
+
 import re
 from typing import List, Tuple
 from time import sleep
@@ -20,7 +25,7 @@ class SCCD_CI_Configurator:
 
     def normalize_models(self,items: List[str]) -> List[Tuple[str, str]]:
         """
-        delete FortiAP, HW, ZoneFlex from model names, remove dashes and spaces, convert to lowercase
+        delete 'FortiAP', 'HW', 'ZoneFlex' from model names, remove dashes and spaces, convert to lowercase
         :param items: List of model names
         :return: List of tuples (original_model_name, normalized_model_name)
         """
@@ -167,6 +172,7 @@ class SCCD_CI_Configurator:
             
             results.append({result[0]: result[1]})
             print(f"SCCD CI updated for AP: {ap_data.get('name')}, Result: {result}")
+        print("All APs CI updated in SCCD")
         return results
 
     def put_multiples_ci(self, cids:List[dict]):
@@ -176,6 +182,7 @@ class SCCD_CI_Configurator:
                                 cid.get("classstructureid"),
                                 cid.get("pluspcustomer"),
                                 cid.get("ccipersongroup"))
+        print("All CIs created/updated in SCCD")
         return "success"
     
 

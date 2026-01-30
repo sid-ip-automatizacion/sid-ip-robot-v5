@@ -131,6 +131,8 @@ class UserEnvironment:
     def frame_configure(self, event):
         """Handle main frame resize events and update canvas scroll region."""
         self.__my_canvas.config(width=event.width, height=event.height)
+        # Expand work area to fill canvas width so buttons stay centered
+        self.__my_canvas.itemconfig(self.__windows_item, width=event.width)
         self.__root.update_idletasks()
         self.__my_canvas.configure(scrollregion=self.__my_canvas.bbox(self.__windows_item))
 
@@ -266,6 +268,10 @@ class UserEnvironment:
             # Disable button if child window is still open
             self.btn_sccd_m.config(state="disabled")
 
+        # Center buttons by expanding work area to canvas width after geometry is set
+        self.__root.update_idletasks()
+        self.__my_canvas.itemconfig(self.__windows_item, width=self.__my_canvas.winfo_width())
+
         self.__root.mainloop()
 
     def adjust_window(self, window):
@@ -321,7 +327,7 @@ class UserEnvironment:
         about_win = tkinter.Toplevel()
         about_text = tkinter.Label(
             about_win,
-            text='version: 5.4.1'
+            text='version: 5.4.2'
                  '\nSID-IP release'
                  '\n\nDeveloped by SID-IP Team, Liberty Networks'
                  '\nDevelopment Team:'
