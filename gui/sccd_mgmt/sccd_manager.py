@@ -108,6 +108,7 @@ class AppStates(tk.Toplevel):
     # ---------- Data & server ops ----------
 
     def reload_from_db(self):
+        """Reload work orders from the SCCD server into the table."""
         rows = self.sccd.get_work_orders()
         self.table.load(rows)
 
@@ -156,6 +157,7 @@ class AppStates(tk.Toplevel):
 
     # ---------- Search behavior ----------
     def search_and_highlight(self):
+        """Search the table for the query and highlight matching rows."""
         query = self.search_var.get().strip().lower()
         if not query:
             self.reset_highlights()
@@ -186,6 +188,7 @@ class AppStates(tk.Toplevel):
     # ---------- Update State popup ----------
 
     def open_update_state_popup(self):
+        """Open the Update State popup for selected work orders."""
         selected_rows = self.table.get_selected_full()
 
         popup = tk.Toplevel(self)
@@ -241,6 +244,7 @@ class AppStates(tk.Toplevel):
             btnbar.pack(fill="x", pady=(12, 0))
 
             def apply_changes():
+                """Apply the selected state (and timer if INPRG) to all selected rows."""
                 target_state = state_var.get()
                 minutes = 0
                 if target_state == "INPRG":
@@ -282,6 +286,7 @@ class AppStates(tk.Toplevel):
     # ---------- Add log popup ----------
 
     def open_add_log_popup(self):
+        """Open the Add Log popup for selected work orders."""
         selected_rows = self.table.get_selected_full()
 
         popup = tk.Toplevel(self)
@@ -351,6 +356,7 @@ class AppStates(tk.Toplevel):
             
 
             def apply_log():
+                """Apply the log entry to all selected rows."""
                 title = title_entry.get("1.0", "end-1c")
                 note = note_text.get("1.0", "end-1c").strip()
 

@@ -169,6 +169,7 @@ class Table(ttk.Frame):
         self.set_cell(wo_id, "pm", pm_info)
 
     def has_row(self, wo_id: str) -> bool:
+        """Check if a row with the given wo_id exists in the table."""
         return bool(self.tree.exists(wo_id))
 
     # -------------------- Events & Sorting --------------------
@@ -177,6 +178,13 @@ class Table(ttk.Frame):
         pass  # hook point if needed
 
     def _on_double_click(self, event):
+        """Context-aware double-click handler.
+        1. Identify clicked cell (row/column)
+        2. Perform action based on column:
+            - wo_id, description, pm: copy to clipboard
+            - last_update, project_info: open info popup
+            - cid_count: open CIDs table popup
+        """
         region = self.tree.identify("region", event.x, event.y)
         if region != "cell":
             return
@@ -204,6 +212,7 @@ class Table(ttk.Frame):
             return
 
     def _sort_by(self, col, descending):
+        """Sort tree contents when a column header is clicked."""
         data = []
         for iid in self.tree.get_children(""):
             val = self.tree.set(iid, col)
@@ -224,6 +233,7 @@ class Table(ttk.Frame):
         self._set_sort_indicators(active_col=col, descending=descending)
 
     def _set_sort_indicators(self, active_col, descending):
+        """Update column headings to reflect current sort state."""
         for col in self.columns:
             if col == active_col:
                 arrow = "▼" if descending else "▲"
@@ -234,6 +244,7 @@ class Table(ttk.Frame):
             self._set_heading(col, arrow=arrow, next_desc=next_desc)
 
     def _set_heading(self, col, arrow="▲/▼", next_desc=False):
+        """Set heading text and command for a column."""
         base = self._base_headings[col]
         self.tree.heading(col,
                           text=f"{base} {arrow}",
@@ -242,6 +253,7 @@ class Table(ttk.Frame):
     # -------------------- Popups --------------------
 
     def _open_info_popup(self, iid, row, col_id):
+        """Popup window showing detailed info for last_update or project_info."""
         popup = tk.Toplevel(self)
         if col_id == "#4":
             popup.title(f"Information - {iid}")
@@ -287,6 +299,7 @@ class Table(ttk.Frame):
 
 
     def _open_cids_table_popup(self, iid, row):
+        """Popup window showing CIDs table for the selected work order."""
         popup = tk.Toplevel(self)
         popup.title(f"CIDs - {iid}")
         popup.geometry("600x360")
@@ -309,6 +322,7 @@ class Table(ttk.Frame):
             tv.insert("", "end", values=(it.get("cid", ""), it.get("location", ""), it.get("description", "")))
 
         def on_copy(event):
+            """Copy cell value to clipboard on double-click."""
             region = tv.identify("region", event.x, event.y)
             if region != "cell":
                 return
@@ -324,6 +338,11 @@ class Table(ttk.Frame):
         tv.bind("<Double-1>", on_copy)
 
         def _export_treeview_to_excel(tv, get_loc_bool):
+            """Export the Treeview contents to an Excel file.
+            Args:
+                tv: The Treeview widget to export.
+                get_loc_bool: Whether to fetch exact locations.
+            """
             if get_loc_bool:
                 export_treeview_to_excel(tv, self._get_exact_location)
             else:
@@ -341,9 +360,11 @@ class Table(ttk.Frame):
 
     @staticmethod
     def _strip_arrows(text: str) -> str:
+        """Remove sort arrows from heading text."""
         return (text.replace("▲/▼", "").replace("▲", "").replace("▼", "")).strip()
 
     def _copy_to_clipboard(self, text: str):
+        """Copy text to clipboard with feedback in title bar."""
         try:
             self.clipboard_clear()
             self.clipboard_append(text)
@@ -355,6 +376,7 @@ class Table(ttk.Frame):
             messagebox.showinfo("Copied", text)
 
     def _format_cell(self, col, value):
+        """Format cell value for display based on column type."""
         if col == "last_update" or col == "project_info":
             if isinstance(value, dict):
                 return value.get("title") or json.dumps(value, ensure_ascii=False)
@@ -365,9 +387,11 @@ class Table(ttk.Frame):
 
     @staticmethod
     def _is_none(v):
+        """Helper to identify None values for sorting."""
         return v is None
 
     def _coerce_for_sort(self, col, val, iid):
+        """Coerce cell value to appropriate type for sorting."""
         if col == "last_update":
             row = self._row_store.get(iid)
             if row:
@@ -408,6 +432,7 @@ class Table(ttk.Frame):
 
     @staticmethod
     def _parse_datetime(s):
+        """Parse a datetime string into a datetime object."""
         if not isinstance(s, str):
             return None
         s = s.strip()
