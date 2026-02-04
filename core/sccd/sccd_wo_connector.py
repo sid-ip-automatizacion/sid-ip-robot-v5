@@ -20,7 +20,7 @@ import re
 from datetime import datetime
 
 
-class SCCD:
+class SCCD_WO:
     """
     SCCD Work Order management API client.
 
@@ -69,7 +69,16 @@ class SCCD:
         that are not tasks (istask=false).
 
         Returns:
-            list: List of normalized work order dictionaries, or
+            list: List of normalized work order dictionaries, with the following keys:
+                - wo_id: Work order ID
+                - state: Current status of the work order
+                - description: Cleaned description of the work order
+                - dc: Deal code associated with the work order
+                - cids: List of associated Configuration Items (CIs)
+                - project_info: Project information extracted from work logs
+                - pm: Project manager information extracted from work logs
+                - last_update: Latest update from work logs
+                - time_min: Time in minutes (default 0)
             dict: Error dictionary if request fails
         """
         url_lref_allwo = (
@@ -80,7 +89,7 @@ class SCCD:
             response = self.session.get(url_lref_allwo, auth=(self.user_sccd, self.pass_sccd))
             if response.status_code == 200:
                 wos_data_dic = response.json()
-                wos_data_normalized = SCCD.normalize_work_order_data(wos_data_dic)
+                wos_data_normalized = SCCD_WO.normalize_work_order_data(wos_data_dic)
                 print(f"{len(wos_data_normalized)} workorders are assigned to {self.owner}")
                 return wos_data_normalized
             else:
@@ -107,7 +116,7 @@ class SCCD:
             wo_dic_normalized = {}
             wo_dic_normalized['wo_id'] = wo_dic.get('wogroup', 'N/A')
             wo_dic_normalized['state'] = wo_dic.get('status', 'N/A')
-            wo_dic_normalized['description'] = SCCD.text_eraser(wo_dic.get('description', 'N/A'))
+            wo_dic_normalized['description'] = SCCD_WO.text_eraser(wo_dic.get('description', 'N/A'))
             wo_dic_normalized['dc'] = wo_dic.get('wolo2', 'N/A')
 
             # Extract Configuration Items (CIs)
@@ -117,7 +126,7 @@ class SCCD:
                     cids_list.append({
                         'cid': cid_dic.get('cinum', 'N/A'),
                         'location': cid_dic.get('location', 'N/A'),
-                        'description': SCCD.clean_data(cid_dic.get('targetdesc', 'N/A'))
+                        'description': SCCD_WO.clean_data(cid_dic.get('targetdesc', 'N/A'))
                     })
             wo_dic_normalized['cids'] = cids_list
 
@@ -126,16 +135,16 @@ class SCCD:
             wo_dic_normalized['pm'] = "No information"
             for log in wo_dic.get('worklog', []):
                 if log.get('description').startswith('P00'):
-                    wo_dic_normalized['project_info'] = SCCD.clean_data(log.get('description_longdescription'))
+                    wo_dic_normalized['project_info'] = SCCD_WO.clean_data(log.get('description_longdescription'))
                 if log.get('description').startswith('N27'):
-                    wo_dic_normalized['pm'] = SCCD.clean_data(log.get('description_longdescription'))
+                    wo_dic_normalized['pm'] = SCCD_WO.clean_data(log.get('description_longdescription'))
 
             # Get latest update from worklogs
             wo_dic_normalized['last_update'] = "No information"
             if wo_dic.get('worklog'):
                 latest_log = max(wo_dic.get('worklog', []), key=lambda x: datetime.fromisoformat(x['createdate']))
                 if latest_log:
-                    wo_dic_normalized['last_update'] = SCCD.clean_data(latest_log.get('description_longdescription'))
+                    wo_dic_normalized['last_update'] = SCCD_WO.clean_data(latest_log.get('description_longdescription'))
 
             wo_dic_normalized['time_min'] = 0
             wos_info.append(wo_dic_normalized)
@@ -320,7 +329,7 @@ def main():
     user_sccd = "user_sccd"  # SCCD username
     pass_sccd = "pass_sccd"  # SCCD password
 
-    sccd_con = SCCD(owner, user_sccd, pass_sccd)
+    sccd_con = SCCD_WO(owner, user_sccd, pass_sccd)
     cids = [
         {"cid": "8011868.SV", "description": "AP MERAKI"},
         {"cid": "23940535.1.22.SV", "description": "RUCKUS AP"}

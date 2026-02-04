@@ -59,6 +59,8 @@ class AppStates(tk.Toplevel):
         self.icon_path = Path(__file__).resolve().parent.parent.parent / 'resources' / 'icon.ico'
         self.iconbitmap(self.icon_path)
 
+        # Table setup, columns and headings
+        # Columns values correspond to SCCD get_work_orders dict keys
         self.columns = ["wo_id", "description", "state", "last_update", "cid_count", "project_info", "pm", "time_min"]
         self.headings = ["WO ID ▲/▼", "Description ▲/▼", "Estate ▲/▼", "Last Update ▲/▼", "CID # ▲/▼", "Project Info ▲/▼", "PM ▲/▼", "Time (min) ▲/▼"]
 

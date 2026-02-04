@@ -83,12 +83,13 @@ class Table(ttk.Frame):
     def load(self, rows):
         """Load data into the table from a list of dicts or sequences."""
         self.clear_view()
+        print("Loading rows into table")
         is_dicts = len(rows) > 0 and isinstance(rows[0], dict)
         for i, row in enumerate(rows):
             if is_dicts:
                 iid = row.get("wo_id", "")
                 if not iid:
-                    iid = self.tree.insert("", "end")  # temp
+                    iid = self.tree.insert("", "end")
                     self.tree.delete(iid)
 
                 # derive cid_count from 'cids' list
