@@ -61,8 +61,8 @@ class AppStates(tk.Toplevel):
 
         # Table setup, columns and headings
         # Columns values correspond to SCCD get_work_orders dict keys
-        self.columns = ["wo_id", "description", "state", "last_update", "cid_count", "project_info", "pm", "time_min"]
-        self.headings = ["WO ID ▲/▼", "Description ▲/▼", "Estate ▲/▼", "Last Update ▲/▼", "CID # ▲/▼", "Project Info ▲/▼", "PM ▲/▼", "Time (min) ▲/▼"]
+        self.columns = ["wo_id", "dc","description", "state", "last_update", "cid_count", "project_info", "pm", "time_min"]
+        self.headings = ["WO ID ▲/▼", "DC ▲/▼", "Description ▲/▼", "Estate ▲/▼", "Last Update ▲/▼", "CID # ▲/▼", "Project Info ▲/▼", "PM ▲/▼", "Time (min) ▲/▼"]
 
         self.table = Table(self, columns=self.columns, headings=self.headings, height=14, user_sccd=user_sccd, pass_sccd=pass_sccd)
         self.table.pack(fill="both", expand=True, padx=10, pady=10)

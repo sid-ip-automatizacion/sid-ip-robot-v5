@@ -202,7 +202,7 @@ class Table(ttk.Frame):
         cell_value = (row.get(column) if row and column in row else display_values[col_index])
 
         # Column-specific behaviors
-        if column == "wo_id" or column == "description" or  column == "pm":
+        if column == "wo_id" or column == "description" or  column == "pm" or column == "dc":
             self._copy_to_clipboard(str(cell_value))
             return
         if column == "last_update" or column == "project_info":
