@@ -518,8 +518,8 @@ class Table(ttk.Frame):
             messagebox.showwarning(
                 "Customer Mismatch",
                 f"The work order {wo_info['wo']} has {customer_mismatch_count} customer "
-                f"missmatches out of {len(rows)} CIDs.\n\n"
-                "Please keep in mind that the ATP file has to be attached to all customer "
+                f"mismatches out of {len(rows)} CIDs.\n\n"
+                "Please keep in mind that ATP file has to be attached to all customer "
                 "IDs related to this project."
             )
 
