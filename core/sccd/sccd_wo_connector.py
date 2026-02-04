@@ -118,8 +118,7 @@ class SCCD_WO:
             wo_dic_normalized['dc'] = wo_dic.get('wolo2', 'N/A')
             wo_dic_normalized['state'] = wo_dic.get('status', 'N/A')
             wo_dic_normalized['description'] = SCCD_WO.text_eraser(wo_dic.get('description', 'N/A'), dc=wo_dic_normalized['dc'])
-
-
+            wo_dic_normalized['customer_id'] = wo_dic.get('pluspcustomer', 'N/A')
             # Extract Configuration Items (CIs)
             cids_list = []
             for cid_dic in wo_dic.get('multiassetlocci', []):

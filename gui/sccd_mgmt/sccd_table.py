@@ -78,10 +78,14 @@ class Table(ttk.Frame):
         # SCCD LOC Connector
         self.sccd_loc = SCCD_LOC(user_sccd, pass_sccd)
 
+        # DATA
+        self._data = []
+
     # -------------------- Public API --------------------
 
     def load(self, rows):
         """Load data into the table from a list of dicts or sequences."""
+        self._data = rows
         self.clear_view()
         print("Loading rows into table")
         is_dicts = len(rows) > 0 and isinstance(rows[0], dict)
@@ -354,7 +358,7 @@ class Table(ttk.Frame):
         btnbar.pack(fill="x", pady=(8, 0))
         get_loc = tk.BooleanVar(value=False)
         ttk.Button(btnbar, text="Export to Excel", command=lambda: _export_treeview_to_excel(tv, get_loc.get())).pack(side="left")
-        ttk.Checkbutton(btnbar, text="Get exact locations", variable=get_loc).pack(side="left", padx=(10,0))
+        ttk.Checkbutton(btnbar, text="Get exact locations / Customer mismatch detection", variable=get_loc).pack(side="left", padx=(10,0))
         ttk.Button(btnbar, text="Close", command=popup.destroy).pack(side="right")
 
     # -------------------- Helpers --------------------
@@ -473,7 +477,7 @@ class Table(ttk.Frame):
         Returns:
             tuple: (new_headers, new_rows) with address column added
         """
-        new_headers = headers + ["address"]
+        new_headers = headers + ["customer", "address"]
         new_rows = []
         locs =[]
         for row in rows:
@@ -484,9 +488,39 @@ class Table(ttk.Frame):
         for loc in locs:
             loc_data = self.sccd_loc.get_location(loc)
             print(f"Location data for {loc}:", loc_data)
-            locs_data[loc] = loc_data.get("address", "N/A") if isinstance(loc_data, dict) else "N/A"
+            locs_data[loc] = [loc_data.get("customer", "N/A"), loc_data.get("address", "N/A")] if isinstance(loc_data, dict) else ["N/A", "N/A"]    
+        print("Completed fetching locations.") 
+
+        # Find work order and customer info for mismatch check on each cid
+        wo_info = {}
+        found = False
+        while found == False:
+            for wo_data in self._data:
+                for row in rows:
+                    if row[0] == wo_data['cids'][0]['cid']:
+                        wo_info['wo'] = wo_data['wo_id']
+                        wo_info['customer'] = wo_data['customer_id']
+                        found = True
+
+        customer_mismatch_count = 0
         for row in rows:
-            address = locs_data.get(row[1], "N/A")  # location is at index 1
-            new_row = list(row) + [address]
+            customer = locs_data.get(row[1], "N/A")[0] 
+            address = locs_data.get(row[1], "N/A")[1]
+            new_row = list(row) + [customer, address]
             new_rows.append(tuple(new_row))
+
+            if customer != wo_info['customer']:
+                customer_mismatch_count += 1
+            
+        
+        if customer_mismatch_count > 0:
+            print(f"The work order {wo_info['wo']} has {customer_mismatch_count} customer missmatches out of {len(rows)} CIDs.")
+            messagebox.showwarning(
+                "Customer Mismatch",
+                f"The work order {wo_info['wo']} has {customer_mismatch_count} customer "
+                f"missmatches out of {len(rows)} CIDs.\n\n"
+                "Please keep in mind that the ATP file has to be attached to all customer "
+                "IDs related to this project."
+            )
+
         return new_headers, new_rows
