@@ -115,9 +115,10 @@ class SCCD_WO:
         for wo_dic in wo_data_dic['member']:
             wo_dic_normalized = {}
             wo_dic_normalized['wo_id'] = wo_dic.get('wogroup', 'N/A')
-            wo_dic_normalized['state'] = wo_dic.get('status', 'N/A')
-            wo_dic_normalized['description'] = SCCD_WO.text_eraser(wo_dic.get('description', 'N/A'))
             wo_dic_normalized['dc'] = wo_dic.get('wolo2', 'N/A')
+            wo_dic_normalized['state'] = wo_dic.get('status', 'N/A')
+            wo_dic_normalized['description'] = SCCD_WO.text_eraser(wo_dic.get('description', 'N/A'), dc=wo_dic_normalized['dc'])
+
 
             # Extract Configuration Items (CIs)
             cids_list = []
@@ -171,7 +172,7 @@ class SCCD_WO:
         return text
 
     @staticmethod
-    def text_eraser(text: str) -> str:
+    def text_eraser(text: str, dc=None) -> str:
         """
         Remove common keywords and patterns from work order descriptions.
 
@@ -184,6 +185,11 @@ class SCCD_WO:
         Returns:
             str: Cleaned description with keywords removed
         """
+        if dc:
+            text = text.replace(dc, "").strip() # Remove deal code if provided
+            text = text.replace(dc.lstrip('0'), "").strip() # Remove deal code without leading zeros
+
+
         cleaned_text = text.upper()
         patterns = (
             "-", "(", ")", "NEW SERVICE", "SIDIP", "SID IP", "NEW PROJECT",
