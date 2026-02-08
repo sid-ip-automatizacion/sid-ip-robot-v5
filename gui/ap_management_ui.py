@@ -81,13 +81,18 @@ class APManagementGUI:
         for widget in self.master.winfo_children():
             widget.destroy()
 
-    def set_controller_info(self):
+    def set_controller_info(self, select_client_required=True):
         """
         Set the controller information from form inputs.
 
         Updates the controller_info dictionary with the current form values
         and handles vendor-specific setup (domain selection for Ruckus,
         organization selection for Meraki, API key for Fortinet).
+
+        Args:
+            select_client_required: If True, prompts user to select a client
+                (Ruckus domain or Meraki organization). Set to False when
+                the selection is not needed (e.g. put operations).
         """
         self.current_state.set("working...")
         self.controller_info['vendor'] = self.vendor_selected
@@ -104,26 +109,28 @@ class APManagementGUI:
             if not self.controller_info['login_url']:
                 error_window("Login URL is required for Ruckus.")
                 return
-            self.current_state.set("selecting domain...")
-            domains = get_domains(
-                self.controller_info['login_url'],
-                self.controller_info['login_user'],
-                self.controller_info['login_password']
-            )
-            if domains:
-                self.controller_info['ruckus_domain_id'] = select_client(domains)
-                print("Selected domain:", self.controller_info['ruckus_domain_id'])
-            else:
-                self.controller_info['ruckus_domain_id'] = '0'
+            if select_client_required:
+                self.current_state.set("selecting domain...")
+                domains = get_domains(
+                    self.controller_info['login_url'],
+                    self.controller_info['login_user'],
+                    self.controller_info['login_password']
+                )
+                if domains:
+                    self.controller_info['ruckus_domain_id'] = select_client(domains)
+                    print("Selected domain:", self.controller_info['ruckus_domain_id'])
+                else:
+                    self.controller_info['ruckus_domain_id'] = '0'
         elif self.vendor_selected == 'meraki':
-            orgs = get_org(self.controller_info['meraki_api_key'])
-            if orgs:
-                self.current_state.set("selecting organization...")
-                self.controller_info['meraki_org_id'] = select_client(orgs)
-                print("Selected organization:", self.controller_info['meraki_org_id'])
-            else:
-                error_window("No organizations found for the provided API key.")
-                return
+            if select_client_required:
+                orgs = get_org(self.controller_info['meraki_api_key'])
+                if orgs:
+                    self.current_state.set("selecting organization...")
+                    self.controller_info['meraki_org_id'] = select_client(orgs)
+                    print("Selected organization:", self.controller_info['meraki_org_id'])
+                else:
+                    error_window("No organizations found for the provided API key.")
+                    return
         elif self.vendor_selected == 'forti':
             if not self.controller_info['forti_key']:
                 error_window("Fortigate API key is required.")
@@ -166,7 +173,7 @@ class APManagementGUI:
         """
 
         try:
-            self.set_controller_info()  # Set controller information from form
+            self.set_controller_info(select_client_required=False)  # Set controller information from form, no client selection needed for put operation
             self.controller_info['ap_list'] = load_excel()  # Load AP list from Excel file
             controller = get_controller(self.controller_info)  # Create controller based on controller_info
             controller.put()  # Send AP information to the controller
