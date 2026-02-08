@@ -493,14 +493,22 @@ class Table(ttk.Frame):
 
         # Find work order and customer info for mismatch check on each cid
         wo_info = {}
-        found = False
-        while found == False:
-            for wo_data in self._data:
-                for row in rows:
-                    if row[0] == wo_data['cids'][0]['cid']:
-                        wo_info['wo'] = wo_data['wo_id']
-                        wo_info['customer'] = wo_data['customer_id']
-                        found = True
+        cid_set = {row[0] for row in rows}  # Set of CIDs being exported
+
+        for wo_data in self._data:
+            # Check if any of the work order's CIDs match the exported CIDs
+            wo_cids = {cid_item['cid'] for cid_item in wo_data.get('cids', [])}
+            if cid_set & wo_cids:  # If there's any intersection
+                wo_info['wo'] = wo_data['wo_id']
+                wo_info['customer'] = wo_data['customer_id']
+                break
+
+        if not wo_info:
+            messagebox.showwarning(
+                "Warning",
+                "Could not find matching work order for the exported CIDs."
+            )
+            return new_headers, new_rows
 
         customer_mismatch_count = 0
         for row in rows:
@@ -517,8 +525,8 @@ class Table(ttk.Frame):
             print(f"The work order {wo_info['wo']} has {customer_mismatch_count} customer missmatches out of {len(rows)} CIDs.")
             messagebox.showwarning(
                 "Customer Mismatch",
-                f"The work order {wo_info['wo']} has {customer_mismatch_count} customer "
-                f"mismatches out of {len(rows)} CIDs.\n\n"
+                f"The work order {wo_info['wo']} has some customer "
+                f"mismatches.\n\n"
                 "Please keep in mind that ATP file has to be attached to all customer "
                 "IDs related to this project."
             )
