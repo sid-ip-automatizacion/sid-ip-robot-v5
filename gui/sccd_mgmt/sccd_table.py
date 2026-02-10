@@ -349,7 +349,7 @@ class Table(ttk.Frame):
                 get_loc_bool: Whether to fetch exact locations.
             """
             if get_loc_bool:
-                export_treeview_to_excel(tv, self._get_exact_location)
+                export_treeview_to_excel(tv, self._get_exact_location, iid)
             else:
                 export_treeview_to_excel(tv)
 
@@ -463,7 +463,7 @@ class Table(ttk.Frame):
         return None
     
     # -------------------- Location Fetcher for CIDs --------------------
-    def _get_exact_location(self, headers: list, rows: list[tuple]) -> tuple[list, list]:
+    def _get_exact_location(self, headers: list, rows: list[tuple], wo_id: str) -> tuple[list, list]:
         """
         Add exact location address to each row based on location ID.
 
@@ -473,6 +473,7 @@ class Table(ttk.Frame):
         Args:
             headers: Original column headers
             rows: List of row tuples
+            wo_id: Work order ID for context
 
         Returns:
             tuple: (new_headers, new_rows) with address column added
@@ -491,16 +492,11 @@ class Table(ttk.Frame):
             locs_data[loc] = [loc_data.get("customer", "N/A"), loc_data.get("address", "N/A")] if isinstance(loc_data, dict) else ["N/A", "N/A"]    
         print("Completed fetching locations.") 
 
-        # Find work order and customer info for mismatch check on each cid
+        # Find work order info for mismatch detection 
         wo_info = {}
-        cid_set = {row[0] for row in rows}  # Set of CIDs being exported
-
         for wo_data in self._data:
-            # Check if any of the work order's CIDs match the exported CIDs
-            wo_cids = {cid_item['cid'] for cid_item in wo_data.get('cids', [])}
-            if cid_set & wo_cids:  # If there's any intersection
-                wo_info['wo'] = wo_data['wo_id']
-                wo_info['customer'] = wo_data['customer_id']
+            if wo_data.get("wo_id") == wo_id:
+                wo_info = wo_data
                 break
 
         if not wo_info:
@@ -509,7 +505,7 @@ class Table(ttk.Frame):
                 "Could not find matching work order for the exported CIDs."
             )
             return new_headers, new_rows
-
+        # Detect customer mismatches and count them
         customer_mismatch_count = 0
         for row in rows:
             customer = locs_data.get(row[1], "N/A")[0] 
@@ -517,17 +513,17 @@ class Table(ttk.Frame):
             new_row = list(row) + [customer, address]
             new_rows.append(tuple(new_row))
 
-            if customer != wo_info['customer']:
+            if customer != wo_info['customer_id']:
                 customer_mismatch_count += 1
             
-        
+        # Show warning if there are customer mismatches
         if customer_mismatch_count > 0:
-            print(f"The work order {wo_info['wo']} has {customer_mismatch_count} customer missmatches out of {len(rows)} CIDs.")
+            print(f"The work order {wo_info['wo_id']} has {customer_mismatch_count} customer missmatches out of {len(rows)} CIDs.")
             messagebox.showwarning(
                 "Customer Mismatch",
-                f"The work order {wo_info['wo']} has some customer "
-                f"mismatches.\n\n"
-                "Please keep in mind that ATP file has to be attached to all customer "
+                f"The work order {wo_info['wo_id']} has {customer_mismatch_count} customer "
+                f"missmatches out of {len(rows)} CIDs.\n\n"
+                "Please keep in mind that the ATP file has to be attached to all customer "
                 "IDs related to this project."
             )
 

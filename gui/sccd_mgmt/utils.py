@@ -10,7 +10,7 @@ from tkinter import ttk, filedialog, messagebox
 import pandas as pd
 
 
-def export_treeview_to_excel(tree: ttk.Treeview, callback=None) -> None:
+def export_treeview_to_excel(tree: ttk.Treeview, callback=None, callback_args=None) -> None:
     """
     Export all contents of a ttk.Treeview to an Excel file.
 
@@ -19,6 +19,7 @@ def export_treeview_to_excel(tree: ttk.Treeview, callback=None) -> None:
         callback: Optional callback function to transform headers and rows
                  before export. Should accept (headers, rows) and return
                  (new_headers, new_rows).
+        callback_args: Optional arguments to pass to the callback function.
     """
     # 1) Get column headers
     cols = list(tree["columns"])
@@ -38,7 +39,7 @@ def export_treeview_to_excel(tree: ttk.Treeview, callback=None) -> None:
     new_headers = None
     new_rows = None
     if callback:
-        new_headers, new_rows = callback(headers, rows)
+        new_headers, new_rows = callback(headers, rows, callback_args if callback_args else None)
     else:
         new_headers, new_rows = headers, rows
 
