@@ -11,7 +11,7 @@ from initialize import AuthenticatedUser  # Import module for authentication
 from gui import UserEnvironment  # Import module for the graphical interface
 
 sys.path.insert(0, os.path.abspath(
-    os.path.join(os.path.dirname(__file__), '..')))
+    os.path.join(os.path.dirname(__file__), '..'))) # Add parent directory to sys.path for module imports
 
 
 def main():
@@ -30,5 +30,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
-    #UserEnvironment()
+    #main()
+    UserEnvironment()

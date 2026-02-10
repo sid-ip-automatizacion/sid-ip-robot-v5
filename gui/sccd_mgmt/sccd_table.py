@@ -260,12 +260,12 @@ class Table(ttk.Frame):
     def _open_info_popup(self, iid, row, col_id):
         """Popup window showing detailed info for last_update or project_info."""
         popup = tk.Toplevel(self)
-        if col_id == "#4":
+        if col_id == "#5":
             popup.title(f"Information - {iid}")
             payload = (row or {}).get("last_update", "no info") if row else " no info"
             if row and "last_update" in row:
                 payload = row["last_update"]
-        if col_id == "#6":
+        if col_id == "#7":
             popup.title(f"Project Info - {iid}")
             payload = (row or {}).get("project_info", "no info") if row else " no info"
             if row and "project_info" in row:
