@@ -118,4 +118,4 @@ Developed by the SID-IP team at Liberty Networks:
 
 ## Version
 
-v5.4.6
+v5.4.7

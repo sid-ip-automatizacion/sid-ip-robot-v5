@@ -9,6 +9,7 @@ This module provides utility functions for the GUI including:
 from pathlib import Path
 import tkinter
 from tkinter.filedialog import asksaveasfilename, askopenfilename
+from tkinter.messagebox import showwarning
 
 import pandas as pd
 
@@ -35,6 +36,11 @@ def error_window(text: str) -> None:
     error_text.pack()
     ok_button.pack()
     error_win.mainloop()
+
+
+def infoW(title: str, info: str ) -> None:
+    showwarning(title=title, message=info)
+
 
 
 def save_excel(data: list) -> None:

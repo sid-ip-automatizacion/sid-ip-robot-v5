@@ -88,7 +88,7 @@ class AppStates(tk.Toplevel):
         ttk.Button(toolbar, text="Update State", command=self.open_update_state_popup).pack(side="left", padx=6)
         ttk.Button(toolbar, text="Add log", command=self.open_add_log_popup).pack(side="left", padx=6)
         ttk.Button(toolbar, text="Export to Excel", command=self.export_to_excel).pack(side="left", padx=6)
-        ttk.Button(toolbar, text="Clear", command=self.handle_clear).pack(side="left", padx=6)
+        ttk.Button(toolbar, text="Refresh", command=self.handle_clear).pack(side="left", padx=6)
         ttk.Button(toolbar, text="Soft Clear", command=self.handle_soft_clear).pack(side="left", padx=6)
         # Search functionality
         self.search_var = tk.StringVar()

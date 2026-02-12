@@ -8,7 +8,7 @@ Items (CIs/assets) from an Excel file to a Work Order or Task in SCCD.
 from tkinter import ttk
 import tkinter as tk
 
-from ..components.utils import load_excel, error_window
+from ..components.utils import load_excel, error_window, infoW
 from core import SCCD_WO as SCCD
 
 
@@ -43,6 +43,7 @@ def main_function(root_win, sccd_owner: str, sccd_user: str, sccd_pass: str) -> 
             result = sccd_connector.add_cis_to_work_order(wo_id, data)
             if "success" in result:
                 print(result["success"])
+                infoW("Success", f"Assets successfully assigned to {wo_id}.")
             else:
                 error_window(result.get("error", "Unknown error occurred"))
         except Exception as e:

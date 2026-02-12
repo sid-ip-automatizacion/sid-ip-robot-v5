@@ -11,6 +11,7 @@ from tkinter import ttk, messagebox
 import json
 
 from .utils import export_treeview_to_excel
+from ..components.utils import infoW
 from core.sccd.sccd_loc_connector import SCCD_LOC
 
 
@@ -519,7 +520,7 @@ class Table(ttk.Frame):
         # Show warning if there are customer mismatches
         if customer_mismatch_count > 0:
             print(f"The work order {wo_info['wo_id']} has {customer_mismatch_count} customer missmatches out of {len(rows)} CIDs.")
-            messagebox.showwarning(
+            infoW(
                 "Customer Mismatch",
                 f"The work order {wo_info['wo_id']} has {customer_mismatch_count} customer "
                 f"missmatches out of {len(rows)} CIDs.\n\n"
