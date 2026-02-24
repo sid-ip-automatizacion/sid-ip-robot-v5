@@ -330,11 +330,15 @@ def main():
     Demonstrates how to add CIs to a work order.
     Replace credentials and work order ID before running.
     """
-    owner = "owner"  # Work order owner
-    user_sccd = "user_sccd"  # SCCD username
-    pass_sccd = "pass_sccd"  # SCCD password
+    owner = ""  # Work order owner
+    user_sccd = ""  # SCCD username
+    pass_sccd = ""  # SCCD password
 
     sccd_con = SCCD_WO(owner, user_sccd, pass_sccd)
+
+
+    print(sccd_con.get_work_orders())
+    """
     cids = [
         {"cid": "8011868.SV", "description": "AP MERAKI"},
         {"cid": "23940535.1.22.SV", "description": "RUCKUS AP"}
@@ -342,6 +346,8 @@ def main():
 
     result = sccd_con.add_cis_to_work_order("WO2018345", cids)
     pprint(result)
+
+    """
 
 
 if __name__ == "__main__":

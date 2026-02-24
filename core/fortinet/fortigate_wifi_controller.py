@@ -148,7 +148,11 @@ class FortigateAPI:
 
 
 if __name__ == "__main__":
-    FORTI_CONTROLLER_IP = " "  # FortiGate IP
-    FORTI_API_KEY = " "  # API Key
+    FORTI_CONTROLLER_IP = ""  # FortiGate IP
+    FORTI_API_KEY = ""  # API Key
 
     api = FortigateAPI(FORTI_CONTROLLER_IP, FORTI_API_KEY)
+    print("Querying APs from Fortigate...")
+    aps = api.query_aps()
+    # Example configuration update for the first AP (uncomment to test) 
+    print(aps)

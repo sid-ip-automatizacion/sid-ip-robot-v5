@@ -79,6 +79,6 @@ class SCCD_LOC:
 
 
 if __name__ == "__main__":
-    sccd_loc = SCCD_LOC("username", "password")
+    sccd_loc = SCCD_LOC("", "")
     loc_data = sccd_loc.get_location("CAJ009-56-L1")
     print(loc_data)

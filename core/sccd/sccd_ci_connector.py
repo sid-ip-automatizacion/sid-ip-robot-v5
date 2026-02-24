@@ -79,6 +79,40 @@ class SCCD_CI:
         except Exception as e:
             return {"error": str(e)}
 
+
+    def get_rt_sw_models(self):
+        """Retrieve the list of RT-SW models from SCCD.
+        Format output: ["MODEL1", "MODEL2", ...]
+        """
+        rt_sw_models_url = f'{self.url_sccd}oslc/os/MXDOMAIN'
+        params = {
+            'lean': '1',
+            'oslc.select': 'alndomain',
+            'oslc.where': 'domainid="CC_CN_MODEL"',  
+            'oslc.pageSize': '1000'
+        }
+        url = requests.PreparedRequest()
+        url.prepare_url(rt_sw_models_url, params)
+        rt_sw_models_data_url = url.url
+
+        try:
+            response = self.session.get(rt_sw_models_data_url, auth=(self.user_sccd, self.pass_sccd))
+            if response.status_code == 200:
+                rt_sw_models_data_dic = response.json()
+                #print(rt_sw_models_data_dic)
+                rt_sw_models = []
+                for item in rt_sw_models_data_dic.get('member')[0].get('alndomain'):
+                    model_info ={}
+                    model_info['model'] = item.get('value', 'N/A')
+                    model_info['description'] = item.get('description', 'N/A')
+                    model_info['id'] = item.get('valueid', 'N/A')
+                    rt_sw_models.append(model_info)
+                
+                return rt_sw_models
+            else:
+                return "Failed to retrieve RT-SW models"
+        except Exception as e:
+            return {"error": str(e)}
         
     def change_classstructureid(self, new_classstructureid):
 
@@ -165,6 +199,8 @@ class SCCD_CI:
 
 
 if __name__ == "__main__":
-    sccd_ci = SCCD_CI("username", "password")
-    #sccd_ci.put_ci("2098818.CO","UNI003-56-L16","30019","UNI003-56","CNCSCCOL")
-    sccd_ci.change_ci_status("2098818.CO","OPERATING")
+    sccd_ci = SCCD_CI("", "")
+    models = sccd_ci.get_rt_sw_models()
+    for model in models:
+        if model['description'] != "N/A":
+            print(f"Model: {model['model']}, Description: {model['description']}, ID: {model['id']}")

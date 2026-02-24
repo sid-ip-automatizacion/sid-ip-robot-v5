@@ -67,7 +67,7 @@ class SCCD_SR:
             return f"error: {e}"
         
 if __name__ == "__main__":
-    sccd_sr = SCCD_SR("username", "password")
+    sccd_sr = SCCD_SR("", "")
     sr = "SR12637837"
     cids = [
         {"assetnum": "8011868.SV", "description": "AP MERAKI"},

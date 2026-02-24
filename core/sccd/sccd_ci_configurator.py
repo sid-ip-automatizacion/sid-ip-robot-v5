@@ -6,8 +6,9 @@ SCCD_CI_Configurator class used to normalize data and interact with SCCD_CI in s
 import re
 from typing import List, Tuple
 from time import sleep
+from pprint import pprint
 
-from .sccd_ci_connector import SCCD_CI
+from sccd_ci_connector import SCCD_CI
 
 class SCCD_CI_Configurator:
 
@@ -188,8 +189,11 @@ class SCCD_CI_Configurator:
 
 
 if __name__ == "__main__":
-    sccd_ci = SCCD_CI_Configurator("username", "password")
+    sccd_ci = SCCD_CI_Configurator("", "")
+    pprint(sccd_ci.models_tuples)
     
+
+    """
     ap_info= [{"name": "8011868.SV_TEST-AP-SIDIP-BQA",
         "model": "R510",
         "description": "Ubicacion Luis",
@@ -200,7 +204,7 @@ if __name__ == "__main__":
         "status": "up-to-date",
         "current_clients": "10",
         "address": "calle 100 #24"}]
-    """
+    
         post_r =sccd_ci.update_multiple_aps_ci(ap_info,
                         vendor="Ruckus",
                         controller="OTT Controller",
