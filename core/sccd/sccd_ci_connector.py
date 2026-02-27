@@ -200,7 +200,5 @@ class SCCD_CI:
 
 if __name__ == "__main__":
     sccd_ci = SCCD_CI("", "")
-    models = sccd_ci.get_rt_sw_models()
-    for model in models:
-        if model['description'] != "N/A":
-            print(f"Model: {model['model']}, Description: {model['description']}, ID: {model['id']}")
+    cid_info = sccd_ci.get_configuration_item("8011868.SV")
+    pprint(cid_info)  
