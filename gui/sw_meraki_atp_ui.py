@@ -9,7 +9,7 @@ import tkinter
 from tkinter import ttk
 
 from .components import error_window, save_excel, select_client
-from core.meraki import get_switches, get_org
+from core import get_meraki_switches, get_org
 
 
 def get_atp_button_function(meraki_key_api: str) -> None:
@@ -25,7 +25,7 @@ def get_atp_button_function(meraki_key_api: str) -> None:
     try:
         clients = get_org(meraki_key_api)  # Get list of organizations
         org_id = select_client(clients)  # Select organization and get its ID
-        info = get_switches(meraki_key_api, org_id)  # Get Meraki switch information
+        info = get_meraki_switches(meraki_key_api, org_id)  # Get Meraki switch information
         save_excel(info)  # Save information to Excel file
         print("File saved")
     except Exception as e:

@@ -163,6 +163,66 @@ class EnvHandler:
         btn_save = ttk.Button(sccd_cred_win, text="Save Credentials", command=save_cred)
         btn_save.grid(row=3, column=0, pady=5)
         sccd_cred_win.mainloop()
+    
+    def set_radius_credentials(self) -> None:
+        """
+        Open a dialog to configure RADIUS credentials.
+
+        Creates a Toplevel window prompting for:
+        - RADIUS username (stored in .env)
+        - RADIUS password (stored in OS keyring)
+        """
+        def save_cred():
+            user_radius = ent_user.get()
+            pass_radius = ent_pass.get()
+            # Store RADIUS username in .env file
+            dotenv.set_key(self.__env_path, 'LOGIN_USER_RADIUS', user_radius)
+            # Save RADIUS password in OS keyring
+            keyring.set_password("RADIUS_KEY", user_radius, pass_radius)            
+            radius_cred_win.destroy()
+
+        radius_cred_win = tkinter.Toplevel()
+        user_msg = ttk.Label(radius_cred_win, text="RADIUS User")
+        user_msg.grid(row=0, column=0, padx=10, pady=10)
+        ent_user = ttk.Entry(radius_cred_win, width=20)
+        ent_user.grid(row=0, column=1, padx=10, pady=10)
+        pass_msg = ttk.Label(radius_cred_win, text="RADIUS Password")
+        pass_msg.grid(row=1, column=0, padx=10, pady=10)
+        ent_pass = ttk.Entry(radius_cred_win, show="*", width=20)
+        ent_pass.grid(row=1, column=1, padx=10, pady=10)
+        btn_save = ttk.Button(radius_cred_win, text="Save RADIUS Credentials", command=save_cred)
+        btn_save.grid(row=2, column=0, pady=5)  
+        radius_cred_win.mainloop()
+
+    def set_temporal_credentials(self) -> None:
+        """
+        Open a dialog to configure temporal credentials.
+
+        Creates a Toplevel window prompting for:
+        - Temporal username (stored in .env)
+        - Temporal password (stored in OS keyring)
+        """
+        def save_cred():
+            user_temporal = ent_user.get()
+            pass_temporal = ent_pass.get()
+            # Store temporal username in .env file
+            dotenv.set_key(self.__env_path, 'LOGIN_USER_TEMPORAL', user_temporal)
+            # Save temporal password in OS keyring
+            keyring.set_password("TEMPORAL_KEY", user_temporal, pass_temporal)            
+            temporal_cred_win.destroy()
+
+        temporal_cred_win = tkinter.Toplevel()
+        user_msg = ttk.Label(temporal_cred_win, text="Temporal User")
+        user_msg.grid(row=0, column=0, padx=10, pady=10)
+        ent_user = ttk.Entry(temporal_cred_win, width=20)
+        ent_user.grid(row=0, column=1, padx=10, pady=10)
+        pass_msg = ttk.Label(temporal_cred_win, text="Temporal Password")
+        pass_msg.grid(row=1, column=0, padx=10, pady=10)
+        ent_pass = ttk.Entry(temporal_cred_win, show="*", width=20)
+        ent_pass.grid(row=1, column=1, padx=10, pady=10)
+        btn_save = ttk.Button(temporal_cred_win, text="Save Temporal Credentials", command=save_cred)
+        btn_save.grid(row=2, column=0, pady=5)  
+        temporal_cred_win.mainloop()
 
     def set_meraki_key(self) -> None:
         """
@@ -247,3 +307,39 @@ class EnvHandler:
             str: SCCD API base URL
         """
         return os.environ["SCCD_URL"]
+    
+    def get_radius_user(self) -> str:
+        """
+        Get the RADIUS username from environment variables.
+
+        Returns:
+            str: RADIUS username
+        """
+        return os.environ["LOGIN_USER_RADIUS"]
+    
+    def get_radius_pass(self) -> str:
+        """
+        Get the RADIUS password from the OS keyring.
+
+        Returns:
+            str: RADIUS password
+        """
+        return keyring.get_password("RADIUS_KEY", self.get_radius_user())
+
+    def get_temporal_user(self) -> str:
+        """
+        Get the temporal username from environment variables.
+
+        Returns:
+            str: Temporal username
+        """
+        return os.environ["LOGIN_USER_TEMPORAL"]
+    
+    def get_temporal_pass(self) -> str:
+        """
+        Get the temporal password from the OS keyring.
+
+        Returns:
+            str: Temporal password
+        """
+        return keyring.get_password("TEMPORAL_KEY", self.get_temporal_user())

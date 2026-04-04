@@ -12,7 +12,7 @@ import json
 
 from .utils import export_treeview_to_excel
 from ..components.utils import infoW
-from core.sccd.sccd_loc_connector import SCCD_LOC
+from core import SCCD_LOC 
 
 
 class Table(ttk.Frame):

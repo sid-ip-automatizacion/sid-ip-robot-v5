@@ -8,9 +8,9 @@ to handle AP configuration and retrieval.
 
 from pprint import pprint
 
-from .meraki import MerakiWLC
-from .ruckus import SmartZoneAPI
-from .fortinet import FortigateAPI
+from .meraki_api_handler import MerakiWLC
+from .ruckus_api_handler import SmartZoneAPI
+from .fortinet_api_handler import FortigateAPI
 
 
 class Controller:

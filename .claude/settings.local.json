@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"import ast; ast.parse\\(open\\(''gui/nexus_management_ui.py''\\).read\\(\\)\\); print\\(''Syntax OK''\\)\")"
+    ]
+  }
+}

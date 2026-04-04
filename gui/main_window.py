@@ -105,8 +105,10 @@ class UserEnvironment:
         # My Account menu
         self.myaccmenu = tkinter.Menu(self.menubar, tearoff=0)
         self.myaccmenu.add_command(label="Configure SCCD", command=self.env.set_sccd_credentials)
-        self.myaccmenu.add_command(label="Change password", command=self.env.create_password)
+        self.myaccmenu.add_command(label="Change robot password", command=self.env.create_password)
         self.myaccmenu.add_command(label="Configure Meraki API Key", command=self.env.set_meraki_key)
+        self.myaccmenu.add_command(label="Configure radius", command=self.env.set_radius_credentials)
+        self.myaccmenu.add_command(label="Configure temporal credentials", command=self.env.set_temporal_credentials)
 
         # Functions menu
         self.funmenu = tkinter.Menu(self.menubar, tearoff=0)
@@ -208,6 +210,12 @@ class UserEnvironment:
             self.env.get_pass_sccd()
         )
 
+    def run_nexus_mgmt(self):
+        """Load the Nexus Management interface into the work area."""
+        self.clear_work_area()
+        from .nexus_management_ui import NexusManagementUI
+        NexusManagementUI(self.get_work_area(),self.env, geo_callback=self.geometry)
+
     def run_bo_mgmt(self):
         """Load the Back Office Management interface into the work area."""
         self.clear_work_area()
@@ -252,6 +260,13 @@ class UserEnvironment:
             text="SCCD Multi-Asset Assignment",
             command=self.run_multi_asset_assignment
         )
+
+        self.btn_nexus_mgmt = ttk.Button(
+            master=self.get_work_area(),
+            text="Nexus Management",
+            command=self.run_nexus_mgmt
+        )
+
         self.btn_bo_m = ttk.Button(
             master=self.get_work_area(),
             text="Back Office Management",
@@ -262,6 +277,7 @@ class UserEnvironment:
         self.btn_aps.pack(side="top", padx=12, pady=12)
         self.btn_sw_atp.pack(side="top", padx=12, pady=12)
         self.btn_sccd_maa.pack(side="top", padx=12, pady=12)
+        self.btn_nexus_mgmt.pack(side="top", padx=12, pady=12)
         self.btn_bo_m.pack(side="top", padx=12, pady=12)
 
         if self.child_ref_sccd_m:
@@ -327,12 +343,13 @@ class UserEnvironment:
         about_win = tkinter.Toplevel()
         about_text = tkinter.Label(
             about_win,
-            text='version: 5.4.7'
+            text='version: 5.5.0'
                  '\nSID-IP release'
                  '\n\nDeveloped by SID-IP Team, Liberty Networks'
                  '\nDevelopment Team:'
                  '\nAlvaro Molano, Cesar Castillo, Nicole Paz, '
-                 '\nWilliam Galindo, Luis Solís',
+                 '\nWilliam Galindo, Luis Solís'
+                 '\nEdward Antolinez, Jeison Agudelo, Ennio Gamboa',
             justify="left"
         )
         about_text.grid(row=0, column=0)

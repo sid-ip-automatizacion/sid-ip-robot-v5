@@ -28,7 +28,7 @@ class SCCD_CI:
         ccci_url = f'{self.url_sccd}oslc/os/CCCI'
         params = {
             'lean': '1',
-            'oslc.select': 'pluspcustomer,href,cilocation,cilocation,classstructureid,ccipersongroup,cinum',
+            'oslc.select': 'pluspcustomer,href,cilocation,classstructureid,ccipersongroup,cinum',
             'oslc.where': f'cinum="{cinum}"',
         }
         url = requests.PreparedRequest()
@@ -46,6 +46,7 @@ class SCCD_CI:
                 self.conf_item_data['classstructureid'] = data.get('classstructureid', 'N/A')
                 self.conf_item_data['ccipersongroup'] = data.get('ccipersongroup', 'N/A')
                 self.conf_item_data['href'] = data.get('href', 'N/A')+'?lean=1'
+                #print(f"Configuration item data retrieved: {self.conf_item_data}")
                 return self.conf_item_data
             else:
                 return {"error": "Failed to retrieve configuration item data"}
@@ -142,6 +143,7 @@ class SCCD_CI:
         data = {'cispec': cispec} # cispec structure: [{assetattrid: "ATTR_ID", value: "NEW_VALUE"}, ...]
         print("Updating CI data")
         patch_url = self.conf_item_data.get('href')  # Get the href for the configuration item
+        print(f"Patch URL: {patch_url}")
 
         if not patch_url:
             return {"error": "Configuration item href not found"}
@@ -200,5 +202,5 @@ class SCCD_CI:
 
 if __name__ == "__main__":
     sccd_ci = SCCD_CI("", "")
-    cid_info = sccd_ci.get_configuration_item("8011868.SV")
-    pprint(cid_info)  
+    data = sccd_ci.get_configuration_item("")
+    pprint(data)  

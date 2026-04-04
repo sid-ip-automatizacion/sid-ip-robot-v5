@@ -13,8 +13,8 @@ import tkinter
 from tkinter import ttk
 
 from core.ap_management import get_controller
-from core.ruckus import get_domains
-from core.meraki import get_org
+from core import get_domains
+from core import get_org
 from core import SCCD_CI_CONF
 
 from gui.ap_sccd_doc_ui import AP_SCCD_Doc_UI
@@ -260,7 +260,7 @@ class APManagementGUI:
         self.frm.columnconfigure(1, weight=1, minsize=10)
 
         # Title label
-        title_lb = ttk.Label(self.frm, text="ACCESS POINTS MANAGER", anchor=tkinter.CENTER, font=('Helvetica', 12))
+        title_lb = ttk.Label(self.frm, text="ACCESS POINTS MANAGER 🛜", anchor=tkinter.CENTER, font=("Helvetica", 18, "bold"))
         title_lb.grid(row=0, columnspan=2, pady=10)
 
         # Vendor dropdown selector
