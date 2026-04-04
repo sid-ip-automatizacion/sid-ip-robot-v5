@@ -136,7 +136,7 @@ A Python package for parallel collection of structured information from network 
 ## Architecture
 
 ```
-remote_access_handler/
+network_inventory/
 ├── __init__.py              # Public API: execute()
 ├── orchestrator.py          # Nornir setup, parallel execution, result aggregation
 ├── inventory.py             # (built into orchestrator) Dict-based Nornir inventory
@@ -182,7 +182,7 @@ pip install nornir nornir-utils netmiko scrapli
 ## Quick start
 
 ```python
-from remote_access_handler import execute
+from network_inventory import execute
 
 results = execute({
     "username": "admin",
@@ -253,7 +253,7 @@ Failed devices return:
 ### 1. Create the task file
 
 ```
-remote_access_handler/tasks/my_task.py
+network_inventory/tasks/my_task.py
 ```
 
 ### 2. Implement the task class
@@ -304,7 +304,7 @@ execute({"username": "u", "password": "p", "task": "my_task", "devices": (...)})
 ### 1. Create the parser
 
 ```
-remote_access_handler/parsers/newvendor.py
+network_inventory/parsers/newvendor.py
 ```
 
 Subclass `BaseParser` and implement all abstract methods:
@@ -334,7 +334,7 @@ class NewVendorParser(BaseParser):
 
 ### 2. Register it
 
-In `remote_access_handler/parsers/__init__.py`:
+In `network_inventory/parsers/__init__.py`:
 
 ```python
 from .newvendor import NewVendorParser
@@ -347,14 +347,14 @@ _PARSER_REGISTRY["newvendor"] = NewVendorParser
 If the new vendor uses Netmiko, just register a mapping:
 
 ```python
-# In remote_access_handler/plugins/__init__.py
+# In network_inventory/plugins/__init__.py
 _VENDOR_PLUGIN_MAP["newvendor"] = (NetmikoPlugin, "newvendor_os")
 ```
 
 If it needs a completely new transport (e.g. REST API), subclass `BaseConnectionPlugin`:
 
 ```python
-# remote_access_handler/plugins/rest_plugin.py
+# network_inventory/plugins/rest_plugin.py
 from .base import BaseConnectionPlugin
 
 
