@@ -343,7 +343,7 @@ class UserEnvironment:
         about_win = tkinter.Toplevel()
         about_text = tkinter.Label(
             about_win,
-            text='version: 5.5.0'
+            text='version: 5.5.1'
                  '\nSID-IP release'
                  '\n\nDeveloped by SID-IP Team, Liberty Networks'
                  '\nDevelopment Team:'

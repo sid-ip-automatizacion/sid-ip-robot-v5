@@ -40,21 +40,33 @@ class FortigateAPI:
         """
         Extracts the model number from the AP profile name.
 
-        Removes the first three characters and keeps the substring
-        up to the first hyphen "-".
-
         Args:
             name (str): The AP profile name (e.g., "FAP234F-default").
 
         Returns:
-            str: The extracted model number (e.g., "234F").
+            str: The extracted model number (e.g., "FAP234F").
 
         Examples:
-            "FAP234F-default"  -> "234F"
-            "FAP220B-Oficinas" -> "220B"
+            "FAP234F-default"  -> "FAP234F"
+            "FAP220B-Oficinas" -> "FAP220B"
         """
-        trimmed = name[3:]
-        return trimmed.split('-', 1)[0]
+        digit_found = False
+        result = []
+
+        for char in name:
+            if not digit_found:
+                result.append(char)
+                if char.isdigit():
+                    digit_found = True
+            else:
+                if char.isalnum():
+                    result.append(char)
+                else:
+                    break
+        result = ''.join(result)
+        result = result.replace("FAP", "")
+        result = result.replace("-", "")
+        return result
 
     # ---------- AP Query ----------
 
@@ -82,6 +94,7 @@ class FortigateAPI:
                 main_dic_results.extend(vdom_ans['results'])
         # ---------- Data Formatting ----------
         for ap_data in main_dic_results:
+            #pprint(ap_data)
             aps_list_dic.append({
                 "name": ap_data['name'],
                 "model": self.profile_to_model(ap_data['ap_profile']),
@@ -95,7 +108,7 @@ class FortigateAPI:
                 "address": 'local'
             })
         print("Reading all APs from Fortigate...")
-        pprint(aps_list_dic)
+        #pprint(aps_list_dic)
         return aps_list_dic
 
     def change_config_1ap(self, ap_serial: str, config: Dict):
@@ -117,7 +130,7 @@ class FortigateAPI:
         try:
             response = requests.put(url, json=config, verify=False, timeout=10)
             response.raise_for_status()
-            print(f"AP {ap_serial} updated successfully")
+            print(f"AP {ap_serial} updated successfully in controller.")
             return response.json()
         except (requests.exceptions.RequestException, ValueError) as e:
             print(f"Error updating AP {ap_serial}: {e}")
@@ -155,4 +168,4 @@ if __name__ == "__main__":
     print("Querying APs from Fortigate...")
     aps = api.query_aps()
     # Example configuration update for the first AP (uncomment to test) 
-    print(aps)
+    #print(aps)
