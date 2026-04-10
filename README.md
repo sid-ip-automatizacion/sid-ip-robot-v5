@@ -136,7 +136,7 @@ A Python package for parallel collection of structured information from network 
 ## Architecture
 
 ```
-network_inventory/
+remote_access_handler/
 ├── __init__.py              # Public API: execute()
 ├── orchestrator.py          # Nornir setup, parallel execution, result aggregation
 ├── inventory.py             # (built into orchestrator) Dict-based Nornir inventory
