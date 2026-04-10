@@ -117,7 +117,12 @@ class SCCD_CI:
         
     def change_classstructureid(self, new_classstructureid):
 
-        """Change the classstructureid of the configuration item."""
+        """Change the classstructureid of the configuration item.
+        30020 for switches
+        30010 for routers
+        30019 for access points
+        """
+        
 
         patch_url = self.conf_item_data.get('href') # Get the href for the configuration item
 

@@ -173,6 +173,8 @@ class SmartZoneAPI:
         """
         endpoint = f"{self.base_url}/aps/{ap_mac}"
         response = self.session.patch(endpoint, json=config, verify=False)
+        print(f"Updating AP {ap_mac} with config: {config}")
+        print(f"Response: {response}")
         response.raise_for_status()
         print(f"AP {ap_mac} configuration updated successfully.")
 
