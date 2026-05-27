@@ -198,7 +198,8 @@ class SCCD_WO:
             "FIREWALL", "CISCO", "JUNIPER", "FORTIGATE", "FORTI ", 'MANAGED',
             "ROUTER", "DIA ", "RETAIL ANALYTICS", "DATA WIFI", "DATAWIFI", "NEW ",
             "COLOMBIA", "HONDURAS", "GUATEMALA", "SALVADOR", "TRINIDAD", "JAMAICA",
-            "REPUBLICA DOMINICANA", "BARBADOS", "CURAZAO", "PANAMA"
+            "REPUBLICA DOMINICANA", "BARBADOS", "CURAZAO", "PANAMA", "RENOVACIÓN ", 
+            "INSTALACIÓN ", "RENOVACION", "INSTALACION"
         )
         for pattern in patterns:
             if pattern == "-":
