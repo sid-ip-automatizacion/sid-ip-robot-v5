@@ -122,6 +122,7 @@ class SCCD_CI_Configurator:
         if 'error' in self.sccd_ci.conf_item_data:
             return self.sccd_ci.conf_item_data  # Return the error if occurred
         classstructureid = self.sccd_ci.conf_item_data.get('classstructureid')
+        print(f"Current classstructureid for CID {cid}: {classstructureid}")
         if classstructureid != "30019":  # AP classstructureid
             change_response = self.sccd_ci.change_classstructureid("30019")
             print("Changed classstructureid to 30019 (C&W MANAGED WI-FI AP) for CID: ", cid)
@@ -146,6 +147,8 @@ class SCCD_CI_Configurator:
             {"assetattrid": "DESCRIPTION/LOCATION", "alnvalue": ap_data.get("description")},
             {"assetattrid": "SUPPORT CONTRACT EXPIRATION DATE (YYYY-MM-DD)", "alnvalue": sup_exp}
         ]
+        print("cispec to be sent for update: ")
+        pprint(cispec)
         update_response = self.sccd_ci.update_ci_data(cispec)
         print(f"{cid} CISPEC sent to SCCD for update")
         return (cid,update_response)
@@ -400,7 +403,13 @@ class SCCD_CI_Configurator:
         return "success"
     
 def test():
-    pass
+    sccd_ci_conf = SCCD_CI_Configurator("","")
+    data= {'name': '52653421.1.1.GT-AP01', 'model': '231K', 'description': 'Recepción 1er Nivel', 'site': 'local', 'ip': '192.168.100.2', 'mac': 'b4:b2:e9:5d:9f:90', 'serial': 'FP231K5N25046629', 'status': 'connected', 'current_clients': 2, 'address': 'local'}
+    sccd_ci_conf.update_1ap_ci(data,
+                                vendor="fortinet",
+                                controller="52652756.1.GT",
+                                control_vlan="100",
+                                dealcode="0001551551")
     
 
 if __name__ == "__main__":

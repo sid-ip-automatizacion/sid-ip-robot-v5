@@ -1,3 +1,36 @@
 {
-    "python.analysis.typeCheckingMode": "standard"
+    "python.analysis.typeCheckingMode": "standard",
+    "python.terminal.useEnvFile":true,
+"editor.semanticTokenColorCustomizations": {
+    "enabled": true,
+    "rules": {
+        "variable": "#93bef0",
+        "variable.readonly": "#00ccff",
+        "property": "#93bef0",
+        "type": "#ALT_COLOR_HERE",
+        "parameter": "#93bef0"
+    }
+},
+"editor.tokenColorCustomizations": {
+    "textMateRules": [
+        {
+            "scope": [
+                "variable.other.property.py",
+                "variable.other.object.property.py"
+            ],
+            "settings": {
+                "foreground": "#61AFEF"
+            }
+        },
+        {
+            "scope": [
+                "meta.indexed-expression.py",
+                "meta.item-access.py"
+            ],
+            "settings": {
+                "foreground": "#ABB2BF"
+            }
+        }
+    ]
+}
 }
