@@ -13,6 +13,7 @@ Provides functionality to:
 
 import requests
 from requests.auth import HTTPBasicAuth
+from requests.exceptions import Timeout, RequestException
 from pprint import pprint
 from bs4 import BeautifulSoup
 import html
@@ -51,7 +52,7 @@ class SCCD_WO:
         self.url_sccd = 'https://servicedesk.cwc.com/maximo/'
         # Validate credentials on initialization
         self.auth = HTTPBasicAuth(self.user_sccd, self.pass_sccd)
-        self.validate_credentials = requests.get(self.url_sccd, auth=self.auth)
+        self.validate_credentials = requests.get(self.url_sccd, auth=self.auth, timeout=10)
 
         self.session = requests.Session()
         self.myheaders = {
@@ -60,6 +61,7 @@ class SCCD_WO:
             'Content-Type': 'application/json',
             'properties': '*'
         }
+
 
     def get_work_orders(self) -> list | dict:
         """
@@ -198,7 +200,8 @@ class SCCD_WO:
             "FIREWALL", "CISCO", "JUNIPER", "FORTIGATE", "FORTI ", 'MANAGED',
             "ROUTER", "DIA ", "RETAIL ANALYTICS", "DATA WIFI", "DATAWIFI", "NEW ",
             "COLOMBIA", "HONDURAS", "GUATEMALA", "SALVADOR", "TRINIDAD", "JAMAICA",
-            "REPUBLICA DOMINICANA", "BARBADOS", "CURAZAO", "PANAMA"
+            "REPUBLICA DOMINICANA", "BARBADOS", "CURAZAO", "PANAMA", "RENOVACIÓN ", 
+            "INSTALACIÓN ", "RENOVACION", "INSTALACION"
         )
         for pattern in patterns:
             if pattern == "-":

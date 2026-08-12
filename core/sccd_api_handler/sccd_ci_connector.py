@@ -47,6 +47,8 @@ class SCCD_CI:
                 self.conf_item_data['ccipersongroup'] = data.get('ccipersongroup', 'N/A')
                 self.conf_item_data['href'] = data.get('href', 'N/A')+'?lean=1'
                 #print(f"Configuration item data retrieved: {self.conf_item_data}")
+                print(f"Configuration item {cinum} data retrieved")
+                print(f"data: {self.conf_item_data}")
                 return self.conf_item_data
             else:
                 return {"error": "Failed to retrieve configuration item data"}

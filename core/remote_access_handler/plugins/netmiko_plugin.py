@@ -39,6 +39,9 @@ class NetmikoPlugin(BaseConnectionPlugin):
                 host=self.hostname,
                 username=self.username,
                 password=self.password,
+                disabled_algorithms={"kex": ["diffie-hellman-group1-sha1", 
+                                             "diffie-hellman-group14-sha1",
+                                             "diffie-hellman-group-exchange-sha1"]}, # Some devices require these older algorithms to connect. Adjust as needed.
             )
         except Exception as exc:
             raise DeviceConnectionError(
