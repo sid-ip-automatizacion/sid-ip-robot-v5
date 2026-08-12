@@ -216,15 +216,15 @@ def main():
     Replace controller_ip, username, password, and mac with actual values
     before running.
     """
-    controller_ip = " "  # SmartZone IP address
-    username = " "  # Login username
-    password = " "  # Login password
+    controller_ip = ""  # SmartZone IP address
+    username = ""  # Login username
+    password = ""  # Login password
     api = SmartZoneAPI(controller_ip, username, password)
-    mac = " "  # AP MAC address
+    mac = ""  # AP MAC address
     config = {
-        "name": " ",
-        "description": " ",
-        "location": " "
+        "name": "",
+        "description": "",
+        "location": ""
     }
 
     api.change_config_1ap(mac, config)
