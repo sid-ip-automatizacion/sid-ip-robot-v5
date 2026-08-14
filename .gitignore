@@ -129,4 +129,14 @@ dmypy.json
 .pyre/
 
 # vscode settings
-.vscode/
+#.vscode/
+
+# Vim
+#vim.exe.stackdump
+
+# Nornir
+#nornir.log
+
+# Claude
+# CLAUDE.md
+# .claude/
