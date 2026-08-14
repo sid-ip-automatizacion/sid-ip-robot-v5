@@ -22,12 +22,12 @@ v5.5.2
 
 Desktop application developed in Python with Tkinter that provides tools for:
 
-- **SCCD WO Management**: Work Order management in the Service Desk (SCCD)
-- **AP Management**: Access Point configuration (Meraki, Fortinet, Ruckus) and SCCD integration
-- **Meraki SW ATP**: Meraki switch management with ATP
-- **SCCD Multi-Asset Assignment**: Multiple asset assignment in SCCD
-- **Nexus Management**: Network orchestration and SCCD integration
-- **Back Office Management**: Back office management tools
+- **SCCD WO Management**: Work Order management in the Service Desk (SCCD).
+- **AP Management**: Access Point configuration (Meraki, Fortinet, Ruckus) and SCCD integration.
+- **Meraki SW ATP**: Meraki switch management with ATP.
+- **SCCD Multi-Asset Assignment**: Multiple asset assignment in SCCD.
+- **Nexus Management**: Network orchestration and SCCD integration.
+- **Back Office Management**: Back office management tools.
 
 
 ## Requirements
