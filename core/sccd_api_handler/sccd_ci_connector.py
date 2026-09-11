@@ -208,6 +208,6 @@ class SCCD_CI:
 
 
 if __name__ == "__main__":
-    sccd_ci = SCCD_CI("", "")
-    data = sccd_ci.get_configuration_item("")
+    sccd_ci = SCCD_CI("1842309", "Cable2026#$%LN")
+    data = sccd_ci.get_configuration_item("60786646.GT")
     pprint(data)  

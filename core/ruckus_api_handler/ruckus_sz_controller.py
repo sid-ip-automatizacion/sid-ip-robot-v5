@@ -13,7 +13,7 @@ Note:
 import requests
 import urllib3
 from pprint import pprint
-from typing import Dict, List
+from typing import Dict, List, Tuple
 from time import sleep
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -72,22 +72,58 @@ class SmartZoneAPI:
 
     # ---------- Domain Queries ----------
 
-    def get_domains(self) -> List[tuple]:
+    def get_domains(self) -> List[Tuple[str, str]]:
         """
         Retrieve all domains from the SmartZone controller.
 
         Returns:
-            list: List of tuples (domain_name, domain_id)
+            List of tuples containing (domain_name, domain_id).
         """
-        url = f'{self.base_url}/domains'
-        response = self.session.get(url, verify=False)
-        response.raise_for_status()
-        domains_data = response.json().get('list', [])
-        domains_list_dic = []
-        for domain in domains_data:
-            domains_list_dic.append((domain.get('name'), domain.get('id')))
+        url = f"{self.base_url}/domains"
 
-        return domains_list_dic
+        page_size = 100
+        index = 0
+        domains: List[Tuple[str, str]] = []
+
+        while True:
+            response = self.session.get(
+                url,
+                params={
+                    "index": index,
+                    "listSize": page_size,
+                },
+                verify=False,
+            )
+            response.raise_for_status()
+
+            response_data = response.json()
+            page = response_data.get("list") or []
+
+            domains.extend(
+                (domain.get("name"), domain.get("id"))
+                for domain in page
+            )
+
+            # Evita un ciclo infinito si la API devuelve una página vacía.
+            if not page:
+                break
+
+            index += len(page)
+
+            total_count = response_data.get("totalCount")
+            has_more = response_data.get("hasMore")
+
+            if total_count is not None and index >= int(total_count):
+                break
+
+            if has_more is False:
+                break
+
+            # Compatibilidad en caso de que la respuesta no incluya hasMore.
+            if has_more is None and len(page) < page_size:
+                break
+
+        return domains
 
     # ---------- AP Queries ----------
 
@@ -220,14 +256,9 @@ def main():
     username = ""  # Login username
     password = ""  # Login password
     api = SmartZoneAPI(controller_ip, username, password)
-    mac = ""  # AP MAC address
-    config = {
-        "name": "",
-        "description": "",
-        "location": ""
-    }
+    domains = api.get_domains()
+    pprint(domains)
 
-    api.change_config_1ap(mac, config)
 
 
 if __name__ == "__main__":
