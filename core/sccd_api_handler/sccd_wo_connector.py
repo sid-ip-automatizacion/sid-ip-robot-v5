@@ -67,7 +67,7 @@ class SCCD_WO:
         """
         Retrieve all work orders assigned to the owner.
 
-        Fetches work orders with status WORKPENDING, INPRG, or QUEUED
+        Fetches work orders with status WORKPENDING, INPRG, ON-HOLD or QUEUED
         that are not tasks (istask=false).
 
         Returns:
@@ -84,8 +84,8 @@ class SCCD_WO:
             dict: Error dictionary if request fails
         """
         url_lref_allwo = (
-            f'{self.url_sccd}oslc/os/sidwo?lean=1&oslc.pageSize=60&oslc.select=*'
-            f'&oslc.where=owner="{self.owner}"and status IN ["WORKPENDING","INPRG","QUEUED"]and istask=false'
+            f'{self.url_sccd}oslc/os/sidwo?lean=1&oslc.select=*&oslc.pageSize=60'
+            f'&oslc.where=owner="{self.owner}"and status IN ["WORKPENDING","INPRG","QUEUED","ON-HOLD"] and istask=false'
         )
         try:
             response = self.session.get(url_lref_allwo, auth=(self.user_sccd, self.pass_sccd))
@@ -328,29 +328,16 @@ class SCCD_WO:
 
 def main():
     """
-    Example usage of the SCCD class.
+    Main function for testing the SCCD_WO class.
 
-    Demonstrates how to add CIs to a work order.
-    Replace credentials and work order ID before running.
+    Initializes an SCCD_WO instance and retrieves work orders for a specified owner.
     """
-    owner = ""  # Work order owner
-    user_sccd = ""  # SCCD username
-    pass_sccd = ""  # SCCD password
-
-    sccd_con = SCCD_WO(owner, user_sccd, pass_sccd)
-
-
-    print(sccd_con.get_work_orders())
-    """
-    cids = [
-        {"cid": "8011868.SV", "description": "AP MERAKI"},
-        {"cid": "23940535.1.22.SV", "description": "RUCKUS AP"}
-    ]
-
-    result = sccd_con.add_cis_to_work_order("WO2018345", cids)
-    pprint(result)
-
-    """
+    owner = ""
+    user_sccd = ""
+    pass_sccd = ""
+    sccd_client = SCCD_WO(owner, user_sccd, pass_sccd)
+    work_orders = sccd_client.get_work_orders()
+    pprint(work_orders)
 
 
 if __name__ == "__main__":

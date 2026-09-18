@@ -224,7 +224,7 @@ class AppStates(tk.Toplevel):
 
             ttk.Label(form, text="New state: ").grid(row=0, column=0, sticky="w")
             state_var = tk.StringVar(value="WORKPENDING")
-            state_combo = ttk.Combobox(form, textvariable=state_var, values=["WORKPENDING", "INPRG"], state="readonly", width=16)
+            state_combo = ttk.Combobox(form, textvariable=state_var, values=["WORKPENDING", "INPRG", "ON-HOLD"], state="readonly", width=16)
             state_combo.grid(row=0, column=1, sticky="w")
 
             # Timer minutes (INPRG only; 0 = no timer)
