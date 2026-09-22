@@ -19,6 +19,7 @@ from .components import EnvHandler
 
 from . import ap_management_ui as ap_mgmt
 from . import sw_meraki_atp_ui as sw_m_atp
+from .fsw_fortilink_ui import fsw_window 
 from .sccd_mgmt.sccd_manager import run_sccd_manager
 from .sccd_mgmt.m_asset_assig import main_function as maa_function
 from .sccd_mgmt.back_office_mgmt import main_function as bo_function
@@ -56,7 +57,7 @@ class UserEnvironment:
 
         # Create the main GUI window
         self.__root = tkinter.Tk()
-        self.__root.geometry("250x400")
+        self.__root.geometry("250x500")
         self.__root.title('SID IP robot')
         self.__root.iconbitmap(self.icon_path)
         self.__root.tk.call("source", self.theme_path)
@@ -200,6 +201,13 @@ class UserEnvironment:
         self.clear_work_area()
         sw_m_atp.main_function(self.get_work_area(), self.env.get_key_meraki())
 
+    def run_fsw(self):
+        """Documentation for fsw in sccd"""
+        self.clear_work_area()
+        fsw_window(self.get_work_area())
+
+
+
     def run_multi_asset_assignment(self):
         """Load the Multi-Asset Assignment interface into the work area."""
         self.clear_work_area()
@@ -234,11 +242,12 @@ class UserEnvironment:
         1. SCCD WO Management
         2. AP Management
         3. Meraki SW ATP
-        4. SCCD Multi-Asset Assignment
-        5. Back Office Management
+        5. FortiSwitches
+        6. SCCD Multi-Asset Assignment
+        7. Back Office Management
         """
         self.clear_work_area()
-        self.__root.geometry("250x400")
+        self.__root.geometry("250x500")
 
         self.btn_sccd_m = ttk.Button(
             master=self.get_work_area(),
@@ -254,6 +263,11 @@ class UserEnvironment:
             master=self.get_work_area(),
             text="Meraki SW ATP",
             command=self.run_atp_sw
+        )
+        self.btn_fsw = ttk.Button(
+            master=self.get_work_area(),
+            text="FortiSwitches Fortilink",
+            command=self.run_fsw
         )
         self.btn_sccd_maa = ttk.Button(
             master=self.get_work_area(),
@@ -276,6 +290,7 @@ class UserEnvironment:
         self.btn_sccd_m.pack(side="top", padx=12, pady=12)
         self.btn_aps.pack(side="top", padx=12, pady=12)
         self.btn_sw_atp.pack(side="top", padx=12, pady=12)
+        self.btn_fsw.pack(side="top", padx=12, pady=12)
         self.btn_sccd_maa.pack(side="top", padx=12, pady=12)
         self.btn_nexus_mgmt.pack(side="top", padx=12, pady=12)
         self.btn_bo_m.pack(side="top", padx=12, pady=12)

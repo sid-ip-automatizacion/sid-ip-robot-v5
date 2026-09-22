@@ -15,9 +15,11 @@ from .sccd_api_handler.sccd_ci_configurator import SCCD_CI_Configurator as SCCD_
 from .sccd_api_handler.sccd_loc_connector import SCCD_LOC
 from .sccd_api_handler.sccd_sr_connector import SCCD_SR
 
+from .fortinet_api_handler import FortigateSWController
+
 from .remote_access_handler import execute as nexus_remote_access
 
 
 __all__ = ["get_controller", "get_domains", "get_org", "get_meraki_switches", 
            "SCCD_WO", "SCCD_CI_CONF", "SCCD_LOC", "SCCD_SR",
-           "nexus_remote_access"]
+           "nexus_remote_access", "FortigateSWController"]
