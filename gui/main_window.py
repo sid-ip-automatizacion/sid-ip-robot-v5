@@ -19,8 +19,8 @@ from .components import EnvHandler
 
 from . import ap_management_ui as ap_mgmt
 from . import sw_meraki_atp_ui as sw_m_atp
-from .fsw_fortilink_ui import fsw_window 
-from .sccd_mgmt.sccd_manager import run_sccd_manager
+from .fsw_fortilink_ui import fsw_window
+from .sccd_mgmt.sccd_manager import run_sccd_manager 
 from .sccd_mgmt.m_asset_assig import main_function as maa_function
 from .sccd_mgmt.back_office_mgmt import main_function as bo_function
 
@@ -205,6 +205,8 @@ class UserEnvironment:
         """Documentation for fsw in sccd"""
         self.clear_work_area()
         fsw_window(self.get_work_area())
+        
+
 
 
 
