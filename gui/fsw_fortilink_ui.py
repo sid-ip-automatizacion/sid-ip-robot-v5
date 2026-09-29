@@ -37,8 +37,10 @@ from __future__ import annotations
 import tkinter as tk
 from collections.abc import Callable, Sequence
 from tkinter import font, messagebox, ttk
+from pprint import pprint
 
 from core import FortigateSWController
+from core import SCCD_CI_CONF as SCCD_CI
 
 
 class FortiSwitchForm(ttk.Frame):
@@ -161,20 +163,55 @@ class FortiSwitchForm(ttk.Frame):
             callback(self.get_values())
 
 
-def document_fsw_sccd(datos: dict[str, str]) -> None:
+def document_fsw_sccd(datos: dict[str, str], env) -> None:
 
     fsw_controller = FortigateSWController(datos["mgmt"], datos["api_key"])
     fsw_info = fsw_controller.get_switches()
-    print(f"FortiSwitches encontrados: {fsw_info}")
-    print(f"Documentando en SCCD con los datos: {datos}")
+    #print(f"FortiSwitches encontrados: {fsw_info}")
+    pprint(fsw_info)
+    #print(f"Documentando en SCCD con los datos: {datos}")
+    fsw_model_relation = (("S124FF", "FortiSwitch-124F-FPOE"), 
+                          ("S148FF", "FortiSwitch-148F-FPOE"),
+                          ("S124FP", "FortiSwitch-124F-POE"))
+    fsw_data = []
+    for fsw_1_info in fsw_info:
+        if fsw_1_info.get("cid") and fsw_1_info.get("model_ip"):
+            fsw_model = ""
+            for model_firm, real_model in fsw_model_relation:
+                if fsw_1_info.get("model_ip") == model_firm:
+                    fsw_model = real_model
+                    break
+
+            fsw_data.append(
+                {
+                    "dcn": ({"ip_dcn": datos["mgmt"], "vlan_mgmt": "NA"},),
+                    "cid": fsw_1_info.get("cid", ""),
+                    "vendor": "fortinet",
+                    "hostname": fsw_1_info.get("hostname", ""),
+                    "cids_related": (),
+                    "channels": (),
+                    "dealcode": datos["deal_code"],
+                    "support": datos["support"],
+                    "managed_by": datos["managed_by"],
+                    "device_owner": datos["owner_by"],
+                    "sn": fsw_1_info.get("serial_number", ""),
+                    "model": fsw_model,
+                    "device": "sw"
+                }
+            )
+        else:
+            print(f"FortiSwitch con información incompleta: {fsw_1_info.get("serial_number", "")}")
+
+    pprint(fsw_data)
+    sccd_ci = SCCD_CI(env.get_user_sccd(), env.get_pass_sccd())
+    sccd_ci.update_multiple_sw_rt_ci(fsw_data)
 
 
-
-def fsw_window(root) -> None:
+def fsw_window(root, env) -> None:
 
     formulario = FortiSwitchForm(
         root,
-        on_submit=document_fsw_sccd,
+        on_submit=lambda datos: document_fsw_sccd(datos, env),
         managed_by_values=("CW", "Customer"),
         owner_by_values=("CW", "CUSTOMER"),
     )

@@ -204,7 +204,7 @@ class UserEnvironment:
     def run_fsw(self):
         """Documentation for fsw in sccd"""
         self.clear_work_area()
-        fsw_window(self.get_work_area())
+        fsw_window(self.get_work_area(),self.env)
         
 
 
