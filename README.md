@@ -16,7 +16,7 @@ Developed by the SID-IP team at Liberty Networks:
 
 ## Version
 
-v5.5.2
+v5.6.0
 
 ## Description
 

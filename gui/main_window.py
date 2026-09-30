@@ -204,7 +204,7 @@ class UserEnvironment:
     def run_fsw(self):
         """Documentation for fsw in sccd"""
         self.clear_work_area()
-        fsw_window(self.get_work_area(),self.env)
+        fsw_window(self.get_work_area(), self.env, geo_callback=self.geometry)
         
 
 
@@ -360,7 +360,7 @@ class UserEnvironment:
         about_win = tkinter.Toplevel()
         about_text = tkinter.Label(
             about_win,
-            text='version: 5.5.2'
+            text='version: v5.6.0 '
                  '\nSID-IP release'
                  '\n\nDeveloped by SID-IP Team, Liberty Networks'
                  '\nDevelopment Team:'

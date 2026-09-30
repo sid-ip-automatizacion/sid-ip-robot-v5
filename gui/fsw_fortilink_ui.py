@@ -71,12 +71,12 @@ class FortiSwitchForm(ttk.Frame):
         self.rowconfigure(6, weight=1)
 
         self._title_font = font.nametofont("TkDefaultFont", root=self).copy()
-        self._title_font.configure(weight="bold")
+        self._title_font.configure(weight="bold", size=18)
         self.title_label = ttk.Label(
             self,
             text="Fill in FSW information in SCCD (fortilink)",
             font=self._title_font,
-            anchor="center",
+            anchor="center"
         )
         self.title_label.grid(
             row=0, column=0, columnspan=4, sticky="ew", pady=(20, 30)
@@ -181,14 +181,19 @@ def document_fsw_sccd(datos: dict[str, str], env) -> None:
                 if fsw_1_info.get("model_ip") == model_firm:
                     fsw_model = real_model
                     break
-
+            dic_cid_related = []
+            for cid_related in fsw_1_info.get("related_services_ids", []):
+                dic_cid_related.append({"cid_related": cid_related, })
+            for index, trunk_port  in enumerate(fsw_1_info.get("trunk_ports", [])):
+                dic_cid_related[index]["port"] = trunk_port
             fsw_data.append(
                 {
                     "dcn": ({"ip_dcn": datos["mgmt"], "vlan_mgmt": "NA"},),
                     "cid": fsw_1_info.get("cid", ""),
                     "vendor": "fortinet",
                     "hostname": fsw_1_info.get("hostname", ""),
-                    "cids_related": (),
+                    "cids_related": ({"cid_related": datos["cid"], "port": "uplink"},
+                                     ) + tuple(dic_cid_related),
                     "channels": (),
                     "dealcode": datos["deal_code"],
                     "support": datos["support"],
@@ -207,8 +212,9 @@ def document_fsw_sccd(datos: dict[str, str], env) -> None:
     sccd_ci.update_multiple_sw_rt_ci(fsw_data)
 
 
-def fsw_window(root, env) -> None:
-
+def fsw_window(root, env, geo_callback=None) -> None:
+    if geo_callback:
+        geo_callback("750x420")
     formulario = FortiSwitchForm(
         root,
         on_submit=lambda datos: document_fsw_sccd(datos, env),
@@ -222,7 +228,7 @@ def _demo() -> None:
     """Demostración local: muestra los valores, sin llamadas a FortiGate/SCCD."""
     root = tk.Tk()
     root.title("FortiSwitch — Document SCCD")
-    root.geometry("570x420")
+    root.geometry("750x420")
     root.minsize(540, 390)
 
     def mostrar_valores(datos: dict[str, str]) -> None:
