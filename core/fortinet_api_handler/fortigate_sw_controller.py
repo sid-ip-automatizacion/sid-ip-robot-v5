@@ -41,8 +41,27 @@ class FortigateSWController:
             f"?vdom=*&access_token={self.api_key}"
         )
 
-        data = requests.get(url, verify=False, timeout=10)
-        normalized_data = extraer_fortiswitches(data.json())
+        response = requests.get(url, verify=False, timeout=10)
+        content_type = response.headers.get("Content-Type", "unknown")
+        if not response.ok:
+            body = response.text.strip().replace("\n", " ")[:300]
+            raise RuntimeError(
+                f"FortiGate API returned HTTP {response.status_code} "
+                f"({content_type}). Response: {body or '<empty>'}"
+            )
+
+        try:
+            payload = response.json()
+        except requests.exceptions.JSONDecodeError as error:
+            body = response.text.strip().replace("\n", " ")[:300]
+            raise ValueError(
+                "FortiGate API did not return valid JSON "
+                f"(HTTP {response.status_code}, {content_type}). "
+                f"Response: {body or '<empty>'}. "
+                "Verify the management address, API key, and API permissions."
+            ) from error
+
+        normalized_data = extraer_fortiswitches(payload)
         return normalized_data
 
 

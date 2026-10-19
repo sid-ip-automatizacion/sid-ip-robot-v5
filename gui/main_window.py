@@ -57,7 +57,7 @@ class UserEnvironment:
 
         # Create the main GUI window
         self.__root = tkinter.Tk()
-        self.__root.geometry("250x500")
+        self.__root.geometry("500x500")
         self.__root.title('SID IP robot')
         self.__root.iconbitmap(self.icon_path)
         self.__root.tk.call("source", self.theme_path)

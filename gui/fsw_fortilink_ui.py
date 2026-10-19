@@ -35,12 +35,125 @@ Solo requiere la biblioteca estándar de Python con Tkinter instalado.
 from __future__ import annotations
 
 import tkinter as tk
+import json
 from collections.abc import Callable, Sequence
+from pathlib import Path
 from tkinter import font, messagebox, ttk
 from pprint import pprint
 
 from core import FortigateSWController
 from core import SCCD_CI_CONF as SCCD_CI
+
+
+DEFAULT_FSW_MODEL_RELATION = (
+    ("S124FF", "FortiSwitch-124F-FPOE"),
+    ("S148FF", "FortiSwitch-148F-FPOE"),
+    ("S124FP", "FortiSwitch-124F-POE"),
+)
+FSW_MODEL_CONFIG = Path(__file__).resolve().parents[1] / "config" / "fortiswitch_models.json"
+
+
+def _load_fsw_models() -> list[tuple[str, str]]:
+    try:
+        with FSW_MODEL_CONFIG.open(encoding="utf-8") as file:
+            models = json.load(file)
+        return [(str(code), str(name)) for code, name in models.items()]
+    except (OSError, ValueError, AttributeError):
+        return list(DEFAULT_FSW_MODEL_RELATION)
+
+
+class FortiSwitchModelWindow(tk.Toplevel):
+    """Edit the FortiGate model-code to SCCD model-name mapping."""
+
+    def __init__(
+        self,
+        master: tk.Misc,
+        models: Sequence[tuple[str, str]],
+        on_save: Callable[[list[tuple[str, str]]], None],
+    ) -> None:
+        super().__init__(master)
+        self.title("FortiSwitch models")
+        self.transient(master.winfo_toplevel())
+        self.resizable(True, True)
+        self._on_save = on_save
+        self._models = list(models)
+        self.code_var = tk.StringVar(master=self)
+        self.name_var = tk.StringVar(master=self)
+
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=1)
+        self.rowconfigure(0, weight=1)
+        self.table = ttk.Treeview(
+            self, columns=("code", "name"), show="headings", height=9
+        )
+        self.table.heading("code", text="FortiGate model code")
+        self.table.heading("name", text="SCCD model name")
+        self.table.column("code", width=190)
+        self.table.column("name", width=270)
+        self.table.grid(row=0, column=0, columnspan=3, sticky="nsew", padx=12, pady=12)
+        self.table.bind("<<TreeviewSelect>>", self._select_model)
+
+        ttk.Label(self, text="FortiGate code:").grid(row=1, column=0, sticky="w", padx=12)
+        ttk.Label(self, text="SCCD model:").grid(row=1, column=1, sticky="w", padx=6)
+        ttk.Entry(self, textvariable=self.code_var).grid(
+            row=2, column=0, sticky="ew", padx=(12, 6), pady=(0, 10)
+        )
+        ttk.Entry(self, textvariable=self.name_var).grid(
+            row=2, column=1, sticky="ew", padx=6, pady=(0, 10)
+        )
+        actions = ttk.Frame(self)
+        actions.grid(row=2, column=2, sticky="e", padx=12, pady=(0, 10))
+        ttk.Button(actions, text="Add / update", command=self._upsert_model).pack(side="left", padx=3)
+        ttk.Button(actions, text="Delete", command=self._delete_model).pack(side="left", padx=3)
+        ttk.Button(self, text="Save", command=self._save_models).grid(
+            row=3, column=0, columnspan=3, pady=(0, 12)
+        )
+        self._refresh_table()
+
+    def _refresh_table(self) -> None:
+        self.table.delete(*self.table.get_children())
+        for code, name in self._models:
+            self.table.insert("", "end", values=(code, name))
+
+    def _select_model(self, event) -> None:
+        selected = event.widget.selection()
+        if selected:
+            code, name = event.widget.item(selected[0], "values")
+            self.code_var.set(code)
+            self.name_var.set(name)
+
+    def _upsert_model(self) -> None:
+        code = self.code_var.get().strip()
+        name = self.name_var.get().strip()
+        if not code or not name:
+            messagebox.showwarning("Missing model", "Enter both model code and SCCD model name.", parent=self)
+            return
+        self._models = [(old_code, old_name) for old_code, old_name in self._models if old_code != code]
+        self._models.append((code, name))
+        self._refresh_table()
+        self.code_var.set("")
+        self.name_var.set("")
+
+    def _delete_model(self) -> None:
+        selected = self.table.selection()
+        if not selected:
+            return
+        code = self.table.item(selected[0], "values")[0]
+        self._models = [(old_code, name) for old_code, name in self._models if old_code != code]
+        self._refresh_table()
+        self.code_var.set("")
+        self.name_var.set("")
+
+    def _save_models(self) -> None:
+        try:
+            FSW_MODEL_CONFIG.parent.mkdir(parents=True, exist_ok=True)
+            with FSW_MODEL_CONFIG.open("w", encoding="utf-8") as file:
+                json.dump(dict(self._models), file, indent=2, ensure_ascii=True)
+        except OSError as error:
+            messagebox.showerror("Save failed", str(error), parent=self)
+            return
+        self._on_save(list(self._models))
+        self.destroy()
 
 
 class FortiSwitchForm(ttk.Frame):
@@ -56,7 +169,7 @@ class FortiSwitchForm(ttk.Frame):
     ) -> None:
         if on_submit is not None and not callable(on_submit):
             raise TypeError("on_submit debe ser una función o None.")
-        super().__init__(master, padding=(20, 28))
+        super().__init__(master, padding=(20, 16))
         self._on_submit = on_submit
         self.variables = {
             campo: tk.StringVar(master=self)
@@ -69,6 +182,7 @@ class FortiSwitchForm(ttk.Frame):
         self.columnconfigure(1, weight=1, uniform="campos")
         self.columnconfigure(3, weight=1, uniform="campos")
         self.rowconfigure(6, weight=1)
+        self.fsw_models = _load_fsw_models()
 
         self._title_font = font.nametofont("TkDefaultFont", root=self).copy()
         self._title_font.configure(weight="bold", size=18)
@@ -79,7 +193,7 @@ class FortiSwitchForm(ttk.Frame):
             anchor="center"
         )
         self.title_label.grid(
-            row=0, column=0, columnspan=4, sticky="ew", pady=(20, 30)
+            row=0, column=0, columnspan=4, sticky="ew", pady=(12, 20)
         )
 
         self.entries: dict[str, ttk.Entry] = {}
@@ -89,7 +203,7 @@ class FortiSwitchForm(ttk.Frame):
             ("deal_code", "deal code:", 2, 0),
             ("support", "support:", 2, 2),
         ):
-            separacion = (0, 0) if fila == 1 else (24, 0)
+            separacion = (0, 0) if fila == 1 else (16, 0)
             ttk.Label(self, text=etiqueta).grid(
                 row=fila,
                 column=columna,
@@ -104,7 +218,7 @@ class FortiSwitchForm(ttk.Frame):
             self.entries[campo] = entrada
 
         self.api_key_frame = ttk.Frame(self)
-        self.api_key_frame.grid(row=3, column=0, columnspan=4, pady=(24, 0))
+        self.api_key_frame.grid(row=3, column=0, columnspan=4, pady=(16, 0))
         ttk.Label(self.api_key_frame, text="API key:").grid(
             row=0, column=0, sticky="e", padx=(0, 8)
         )
@@ -126,7 +240,7 @@ class FortiSwitchForm(ttk.Frame):
                 column=columna,
                 sticky="e",
                 padx=(16 if columna else 0, 8),
-                pady=(24, 0),
+                pady=(16, 0),
             )
             combo = ttk.Combobox(
                 self,
@@ -135,14 +249,24 @@ class FortiSwitchForm(ttk.Frame):
                 state="readonly",
                 width=18,
             )
-            combo.grid(row=4, column=columna + 1, sticky="ew", pady=(24, 0))
+            combo.grid(row=4, column=columna + 1, sticky="ew", pady=(16, 0))
             self.comboboxes[campo] = combo
 
         self.submit_button = ttk.Button(
             self, text="Document SCCD", width=24, command=self._submit
         )
-        self.submit_button.grid(row=5, column=0, columnspan=4, pady=(36, 8))
+        self.submit_button.grid(row=5, column=0, columnspan=4, pady=(20, 6))
+        self.models_button = ttk.Button(
+            self, text="Manage models", command=self._open_model_window
+        )
+        self.models_button.grid(row=6, column=0, columnspan=4, pady=(4, 6))
         self.set_callback(on_submit)
+
+    def _open_model_window(self) -> None:
+        FortiSwitchModelWindow(self, self.fsw_models, self._set_fsw_models)
+
+    def _set_fsw_models(self, models: list[tuple[str, str]]) -> None:
+        self.fsw_models = models
 
     def get_values(self) -> dict[str, str]:
         """Devuelve una copia de los valores actuales, sin ejecutar el callback."""
@@ -163,21 +287,30 @@ class FortiSwitchForm(ttk.Frame):
             callback(self.get_values())
 
 
-def document_fsw_sccd(datos: dict[str, str], env) -> None:
-
-    fsw_controller = FortigateSWController(datos["mgmt"], datos["api_key"])
-    fsw_info = fsw_controller.get_switches()
+def document_fsw_sccd(
+    datos: dict[str, str],
+    env,
+    fsw_model_relation: Sequence[tuple[str, str]] | None = None,
+) -> None:
+    try:
+        fsw_controller = FortigateSWController(datos["mgmt"], datos["api_key"])
+        fsw_info = fsw_controller.get_switches()
+    except Exception as error:
+        messagebox.showerror("FortiGate API error", str(error))
+        return
     #print(f"FortiSwitches encontrados: {fsw_info}")
     pprint(fsw_info)
     #print(f"Documentando en SCCD con los datos: {datos}")
-    fsw_model_relation = (("S124FF", "FortiSwitch-124F-FPOE"), 
-                          ("S148FF", "FortiSwitch-148F-FPOE"),
-                          ("S124FP", "FortiSwitch-124F-POE"))
+    model_relation = (
+        fsw_model_relation
+        if fsw_model_relation is not None
+        else _load_fsw_models()
+    )
     fsw_data = []
     for fsw_1_info in fsw_info:
         if fsw_1_info.get("cid") and fsw_1_info.get("model_ip"):
             fsw_model = ""
-            for model_firm, real_model in fsw_model_relation:
+            for model_firm, real_model in model_relation:
                 if fsw_1_info.get("model_ip") == model_firm:
                     fsw_model = real_model
                     break
@@ -209,15 +342,18 @@ def document_fsw_sccd(datos: dict[str, str], env) -> None:
 
     pprint(fsw_data)
     sccd_ci = SCCD_CI(env.get_user_sccd(), env.get_pass_sccd())
-    sccd_ci.update_multiple_sw_rt_ci(fsw_data)
+    try:
+        sccd_ci.update_multiple_sw_rt_ci(fsw_data)
+    except Exception as error:
+        messagebox.showerror("SCCD error", str(error))
 
 
 def fsw_window(root, env, geo_callback=None) -> None:
     if geo_callback:
-        geo_callback("750x420")
+        geo_callback("950x650")
     formulario = FortiSwitchForm(
         root,
-        on_submit=lambda datos: document_fsw_sccd(datos, env),
+        on_submit=lambda datos: document_fsw_sccd(datos, env, formulario.fsw_models),
         managed_by_values=("CW", "Customer"),
         owner_by_values=("CW", "CUSTOMER"),
     )
@@ -228,8 +364,8 @@ def _demo() -> None:
     """Demostración local: muestra los valores, sin llamadas a FortiGate/SCCD."""
     root = tk.Tk()
     root.title("FortiSwitch — Document SCCD")
-    root.geometry("750x420")
-    root.minsize(540, 390)
+    root.geometry("950x650")
+    root.minsize(540, 520)
 
     def mostrar_valores(datos: dict[str, str]) -> None:
         messagebox.showinfo(

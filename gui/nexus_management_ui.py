@@ -7,9 +7,9 @@ Supports manual device entry and Excel import.
 """
 
 import tkinter
-from tkinter import ttk, filedialog, messagebox
+from tkinter import ttk, filedialog, messagebox, simpledialog
 import shutil
-from threading import Thread
+from threading import Event, Thread
 
 from core import SCCD_CI_CONF as SCCD_CI
 from core import nexus_remote_access
@@ -39,7 +39,7 @@ class DeviceTableFrame(ttk.Frame):
     def __init__(self, master, geo_callback=None, **kwargs):
         super().__init__(master, **kwargs)
         self.geo_callback = geo_callback
-        self.window_weight = 565
+        self.window_weight = 900
         self.window_height = 480
         self._set_window_size(self.window_weight, self.window_height)
 
@@ -412,8 +412,17 @@ class NexusManagementUI:
             ci_updates = []
             for i, result in enumerate(results):
                 user_entry = devices[i] if i < len(devices) else {}
+                cid = result.get("cid")
+                if not isinstance(cid, str) or cid.strip().lower() in ("", "no", "none"):
+                    cid = self._request_cid(
+                        ip=user_entry.get("ip", ""),
+                        hostname=result.get("hostname", ""),
+                    )
+                    if not cid:
+                        self._finish("Cancelled: CID required")
+                        return
                 ci_updates.append({
-                    "cid": result.get("cid", ""),
+                    "cid": cid,
                     "vendor": result.get("vendor", ""),
                     "model": result.get("model", ""),
                     "device_owner": user_entry.get("device_owner", "CW"),
@@ -437,6 +446,25 @@ class NexusManagementUI:
         except Exception as e:
             self._ui(lambda: error_window(f"Execution error: {e}"))
             self._finish("Error")
+
+    def _request_cid(self, ip, hostname):
+        """Ask for a missing CID on the Tk thread and return it to the worker."""
+        completed = Event()
+        response = {"cid": None}
+
+        def ask():
+            device = hostname or ip or "unknown device"
+            cid = simpledialog.askstring(
+                "Missing CID",
+                f"Could not determine the CID for {device}.\nEnter the CID to continue:",
+                parent=self.root_window.winfo_toplevel(),
+            )
+            response["cid"] = cid.strip() if cid and cid.strip() else None
+            completed.set()
+
+        self.root_window.after(0, ask)
+        completed.wait()
+        return response["cid"]
 
     def _ui(self, callback):
         """Schedule a callback on the main Tkinter thread."""

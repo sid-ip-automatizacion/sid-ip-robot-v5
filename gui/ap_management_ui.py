@@ -59,7 +59,7 @@ class APManagementGUI:
         self.fortikey = tkinter.StringVar()
 
         self.geo_callback = geo_callback
-        self.geo_callback("400x400")
+        self.geo_callback("600x400")
         self.ap_sccd_doc_ui = None
         self.sccd_username = sccd_username
         self.sccd_pass = sccd_pass
